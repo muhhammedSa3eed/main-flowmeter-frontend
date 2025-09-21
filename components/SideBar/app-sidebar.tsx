@@ -43,7 +43,6 @@ const navMainItems = [
     icon: ShieldCheck,
     permissionKey: "permissions",
   },
-
 ];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {

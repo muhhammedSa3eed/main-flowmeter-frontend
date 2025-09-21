@@ -52,62 +52,64 @@ export function LoginForm({
     },
   });
 
- const onSubmit = async (values: z.infer<typeof LoginSchema>) => {
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify(values),
-    });
+  const onSubmit = async (values: z.infer<typeof LoginSchema>) => {
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/login`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(values),
+        }
+      );
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (!res.ok) {
-      if (
-        data?.message ===
-        "Your account is not verified. Please check your email for the OTP."
-      ) {
-        setPendingAccount(true);
-        sendOtpForm.setValue("email", values.email);
-        toast.error("Your account is not verified.");
+      if (!res.ok) {
+        if (
+          data?.message ===
+          "Your account is not verified. Please check your email for the OTP."
+        ) {
+          setPendingAccount(true);
+          sendOtpForm.setValue("email", values.email);
+          toast.error("Your account is not verified.");
+          return;
+        }
+
+        if (data?.message === "Account is suspended. Contact support.") {
+          toast.error("Your account is suspended.");
+          return;
+        }
+
+        toast.error("Invalid username or password.");
         return;
       }
 
-      if (data?.message === "Account is suspended. Contact support.") {
-        toast.error("Your account is suspended.");
+      const userGroup = data?.user?.group?.name;
+      const permissions = data?.user?.permissions;
+
+      if (!userGroup || !permissions) {
+        toast.error("Login response missing permission or group info.");
         return;
       }
 
-      toast.error("Invalid username or password.");
-      return;
+      // ✅ Save user data and permissions
+      Cookies.set("user", JSON.stringify(data), { sameSite: "Strict" });
+      localStorage.setItem("permissions", JSON.stringify(permissions));
+
+      // ✅ Redirect based on group
+      if (userGroup === "admin" || userGroup === "SuperAdmin") {
+        router.push("/dashboard");
+      } else {
+        router.push("/dashboard");
+      }
+
+      toast.success("You have successfully logged in.");
+    } catch (error) {
+      toast.error("Network error. Please try again.");
     }
-
-    const userGroup = data?.user?.group?.name;
-    const permissions = data?.user?.permissions;
-
-    if (!userGroup || !permissions) {
-      toast.error("Login response missing permission or group info.");
-      return;
-    }
-
-    // ✅ Save user data and permissions
-    Cookies.set("user", JSON.stringify(data), { sameSite: "Strict" });
-    localStorage.setItem("permissions", JSON.stringify(permissions));
-
-    // ✅ Redirect based on group
-    if (userGroup === "admin" || userGroup === "SuperAdmin") {
-      router.push("/dashboard");
-    } else {
-      router.push("/dashboard");
-    }
-
-    toast.success("You have successfully logged in.");
-  } catch (error) {
-    toast.error("Network error. Please try again.");
-  }
-};
-
+  };
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
