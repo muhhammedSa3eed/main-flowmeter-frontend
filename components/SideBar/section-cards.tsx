@@ -15,8 +15,8 @@ export default async function SectionCards({
   dashboard: DashboardStats;
 }) {
   return (
-    <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-3 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
-      <Card className="@container/card py-2">
+    <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card  gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 grid @sm/main:grid-cols-1 @md/main:grid-cols-2  @xl/main:grid-cols-3 @5xl/main:grid-cols-4 h-full">
+      <Card className="@container/card py-2 gap-3">
         <CardHeader>
           <CardDescription>Total devices</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
@@ -30,7 +30,7 @@ export default async function SectionCards({
         </CardFooter>
       </Card>
 
-      <Card className="@container/card py-2">
+      <Card className="@container/card py-2 gap-3">
         <CardHeader>
           <CardDescription>Total users</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
@@ -43,7 +43,7 @@ export default async function SectionCards({
           </div>
         </CardFooter>
       </Card>
-      <Card className="@container/card py-2">
+      <Card className="@container/card py-2 gap-3">
         <CardHeader>
           <CardDescription>Total flow-meter</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">

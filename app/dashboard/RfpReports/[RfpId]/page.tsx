@@ -1,36 +1,37 @@
-import React, { Suspense } from "react";
-import { RFP } from "@/types";
-import Loading from "@/app/loading";
-import { SquareMenu } from "lucide-react";
-
-import { cookies } from "next/headers";
-import RfpReports from "@/components/RfpReports";
+import React, { Suspense } from 'react';
+import { RFP } from '@/types';
+import Loading from '@/app/loading';
+import { SquareMenu } from 'lucide-react';
+import RfpReports from '@/components/RfpReports';
+import { cookies } from 'next/headers';
 async function getRFP(): Promise<RFP[]> {
   const cookieStore = cookies();
-
   const cookieHeader = (await cookieStore)
     .getAll()
     .map((c) => `${encodeURIComponent(c.name)}=${encodeURIComponent(c.value)}`)
-    .join("; ");
+    .join('; ');
+  console.log({ cookieHeader });
+  // const token = (await cookies()).get('token')?.value ?? '';
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_BASE_URL}/rfp/full`,
     {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "Content-Type": "application/json",
-        cookie: cookieHeader,
+        'Content-Type': 'application/json',
+        Authorization:
+          'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjA5YmExMDEzLTIyNTUtNDdkYi1iOTllLWViNmI3M2Q3ZDI0ZiIsImVtYWlsIjoid2FsYWFlbWFtMDc3QGdtYWlsLmNvbSIsImdyb3VwIjoiU3VwZXJBZG1pbiIsImlhdCI6MTc1ODQ1ODU3OCwiZXhwIjoxNzU4NDU5NDc4fQ.7oM7q_brutuxGdUo0OowsnvBMeMyMp8HxkevLHxno5s',
       },
-      credentials: "include",
+      credentials: 'include',
     }
   );
 
   if (!response.ok) {
-    console.error("RFP fetch failed:", response.status, response.statusText);
-    throw new Error("Failed to fetch Rfp");
+    console.error('RFP fetch failed:', response.status, response.statusText);
+    throw new Error('Failed to fetch Rfp');
   }
 
   const rfp = await response.json();
-  console.log("RFP Data :", rfp);
+  console.log('RFP Data :', rfp);
   return rfp;
 }
 

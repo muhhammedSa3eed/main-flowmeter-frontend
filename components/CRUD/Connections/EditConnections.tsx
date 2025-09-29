@@ -287,6 +287,7 @@ console.log("Update device",response)
                       <Select
                         onValueChange={(val) => field.onChange(Number(val))}
                         value={field.value?.toString()}
+                      
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Select polling" />

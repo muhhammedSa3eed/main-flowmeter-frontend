@@ -27,7 +27,7 @@ import { CheckIcon, Eye, EyeOff, XIcon } from "lucide-react";
 
 import { SheetDescription, SheetTitle } from "@/components/ui/sheet";
 import Cookies from "js-cookie";
-import { Group } from "@/types";
+import { Role } from "@/types";
 
 export default function AddUser() {
   const id = useId();
@@ -79,7 +79,7 @@ export default function AddUser() {
     defaultValues: {
       username: "",
       email: "",
-      group: "",
+      role: "",
       password: "",
     },
   });
@@ -119,15 +119,15 @@ export default function AddUser() {
       }
     }
   }
-  const [groups, setGroups] = useState<Group[]>([]);
+  const [roles, setRoles] = useState<Role[]>([]);
 
   useEffect(() => {
-    const fetchGroups = async () => {
+    const fetchRoles = async () => {
       try {
         const token = Cookies.get("token");
 
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/groups`,
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/roles`,
           {
             headers: {
               Authorization: token ? `Bearer ${token}` : "",
@@ -135,16 +135,16 @@ export default function AddUser() {
             credentials: "include",
           }
         );
-        if (!res.ok) throw new Error("Failed to fetch groups");
+        if (!res.ok) throw new Error("Failed to fetch roles");
 
-        const data: Group[] = await res.json();
-        setGroups(data);
+        const data: Role[] = await res.json();
+        setRoles(data);
       } catch (error) {
-        console.error("Failed to fetch groups", error);
+        console.error("Failed to fetch roles", error);
       }
     };
 
-    fetchGroups();
+    fetchRoles();
   }, []);
   return (
     <>
@@ -218,16 +218,16 @@ export default function AddUser() {
             {/* Select Field */}
             <FormField
               control={form.control}
-              name="group"
+              name="role"
               render={({ field }) => (
                 <FormItem className="flex-1 mb-3">
                   <FormControl>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select a group" />
+                        <SelectValue placeholder="Select a role" />
                       </SelectTrigger>
                       <SelectContent>
-                        {groups.map((item) => (
+                        {roles.map((item) => (
                           <SelectItem key={item.id} value={item.name}>
                             {item.name}
                           </SelectItem>

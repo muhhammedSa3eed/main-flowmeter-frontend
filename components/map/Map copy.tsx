@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import { Protocol } from 'pmtiles';
 import { layers, namedFlavor } from '@protomaps/basemaps';
@@ -49,7 +48,6 @@ import {
 } from '@/components/ui/drawer';
 
 import { useTheme } from 'next-themes';
-import { DualRangeSlider } from '../ui/dual-range-slider';
 
 type MapFlavor = 'light' | 'dark' | 'white' | 'grayscale' | 'black';
 
@@ -66,10 +64,7 @@ const flavors: MapFlavor[] = ['light', 'dark', 'white', 'grayscale', 'black'];
 interface locationProps {
   locations: Location[];
 }
-const getMinMax = (arr: number[], fallback: [number, number] = [0, 100]) => {
-  if (!arr || arr.length === 0) return fallback;
-  return [Math.min(...arr), Math.max(...arr)] as [number, number];
-};
+
 export default function Map({ locations }: locationProps) {
   const router = useRouter();
   const { theme } = useTheme();
@@ -79,7 +74,7 @@ export default function Map({ locations }: locationProps) {
   const [mapLoaded, setMapLoaded] = useState(false);
   const [open, setOpen] = useState(false);
   const [openArea, setOpenArea] = useState(false);
-
+  const [openCapacity, setOpenCapacity] = useState(false);
   const [openHours, setOpenHours] = useState(false);
   const [capacityFilter, setCapacityFilter] = useState<number | null>(null);
   const [areaFilter, setAreaFilter] = useState<string | null>(null);
@@ -92,72 +87,26 @@ export default function Map({ locations }: locationProps) {
   const [isFiltering, setIsFiltering] = useState(false);
   const [isFiltered, setIsFiltered] = useState(false);
 
-  // const globalFilteredLocations = locations.filter((l) => {
-  //   return (
-  //     (areaFilter === null || l.area === areaFilter) &&
-  //     (capacityFilter === null || l.capacity === capacityFilter) &&
-  //     (hoursFilter === null || l.hours_til_maintenance === hoursFilter)
-  //   );
-  // });
-  const globalFilteredLocations = useMemo(
-    () =>
-      locations.filter((l) => {
-        return (
-          (areaFilter == null || l.area === areaFilter) &&
-          (capacityFilter == null || l.capacity === capacityFilter) &&
-          (hoursFilter == null || l.hours_til_maintenance === hoursFilter)
-        );
-      }),
-    [locations, areaFilter, capacityFilter, hoursFilter]
-  );
-
-  // 2) capacities كمان memoized (مصفوفة أرقام)
-  const capacities = useMemo(() => {
-    return [
-      ...new Set(
-        globalFilteredLocations
-          .map((l) => l.capacity)
-          .filter((c): c is number => typeof c === 'number')
-      ),
-    ].sort((a, b) => a - b);
-  }, [globalFilteredLocations]);
-
-  // 3) initial min/max من كل الـ LOCATIONS (لما المكون يركّب أول مرة)
-  const [initMin, initMax] = useMemo(
-    () =>
-      getMinMax(
-        locations.map((l: any) => l.capacity),
-        [0, 100]
-      ),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  );
-
-  const [minCapacity, setMinCapacity] = useState<number>(initMin);
-  const [maxCapacity, setMaxCapacity] = useState<number>(initMax);
-
-  const [values, setValues] = useState<[number, number]>([initMin, initMax]);
-  useEffect(() => {
-    if (capacities.length === 0) return;
-
-    const [newMin, newMax] = getMinMax(capacities, [initMin, initMax]);
-
-    // حدّد بعناية — استعمل functional update وارجع prev لو مافيش تغيير
-    setMinCapacity((prev) => (prev === newMin ? prev : newMin));
-    setMaxCapacity((prev) => (prev === newMax ? prev : newMax));
-
-    setValues((prev) => {
-      if (prev[0] === newMin && prev[1] === newMax) return prev;
-
-      return [newMin, newMax];
-    });
-  }, [capacities, initMin, initMax]);
+  const globalFilteredLocations = locations.filter((l) => {
+    return (
+      (areaFilter === null || l.area === areaFilter) &&
+      (capacityFilter === null || l.capacity === capacityFilter) &&
+      (hoursFilter === null || l.hours_til_maintenance === hoursFilter)
+    );
+  });
   console.log({ areaFilter });
   useEffect(() => {
     console.log('Filtered:', globalFilteredLocations);
   }, [globalFilteredLocations]);
 
   const areas = [...new Set(globalFilteredLocations.map((l) => l.area))];
+  const capacities = [
+    ...new Set(
+      globalFilteredLocations
+        .map((l) => l.capacity)
+        .filter((c): c is number => c !== undefined)
+    ),
+  ].sort((a, b) => a - b);
 
   const hoursMaint = [
     ...new Set(
@@ -485,6 +434,7 @@ export default function Map({ locations }: locationProps) {
             }
           >[]
         >((resolve) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (source.getClusterLeaves as any)(
             clusterId,
             100,
@@ -673,21 +623,14 @@ export default function Map({ locations }: locationProps) {
 
     try {
       const res = await fetch(
-        `/api/location?area=${encodeURIComponent(areaFilter ?? '')}` +
-          `&capacityMin=${encodeURIComponent(values[0].toString())}` +
-          `&capacityMax=${encodeURIComponent(values[1].toString())}` +
-          `&hours=${encodeURIComponent(hoursFilter?.toString() ?? '')}` +
-          `&fromdate=${dateFrom}&todate=${dateTo}`
+        `/api/location?area=${encodeURIComponent(
+          areaFilter ?? ''
+        )}&capacity=${encodeURIComponent(
+          capacityFilter?.toString() ?? ''
+        )}&hours=${encodeURIComponent(
+          hoursFilter?.toString() ?? ''
+        )}&fromdate=${dateFrom}&todate=${dateTo}`
       );
-      // const res = await fetch(
-      //   `/api/location?area=${encodeURIComponent(
-      //     areaFilter ?? ''
-      //   )}&capacity=${encodeURIComponent(
-      //     capacityFilter?.toString() ?? ''
-      //   )}&hours=${encodeURIComponent(
-      //     hoursFilter?.toString() ?? ''
-      //   )}&fromdate=${dateFrom}&todate=${dateTo}`
-      // );
 
       if (!res.ok) throw new Error('Failed to fetch locations');
       const data = await res.json();
@@ -938,41 +881,6 @@ export default function Map({ locations }: locationProps) {
               className="flex"
               style={{
                 flexWrap: isSmallScreen ? 'wrap' : 'nowrap',
-                marginTop: '35px',
-                marginBottom: '18px',
-              }}
-            >
-              <Label
-                className="text-slate-950 dark:text-slate-50"
-                style={{
-                  width: isSmallScreen ? '100%' : '20%',
-                  flexBasis: isSmallScreen ? '100%' : '20%',
-                  marginBottom: isSmallScreen ? '8px' : '0',
-                }}
-              >
-                Capacity
-              </Label>
-              <div
-                style={{
-                  width: isSmallScreen ? '100%' : '80%',
-                  flexBasis: isSmallScreen ? '100%' : '80%',
-                  marginBottom: isSmallScreen ? '8px' : '0',
-                }}
-              >
-                <DualRangeSlider
-                  label={(value) => value}
-                  value={values}
-                  onValueChange={(val: number[]) => setValues([val[0], val[1]])}
-                  min={minCapacity}
-                  max={maxCapacity}
-                  step={1}
-                />
-              </div>
-            </div>
-            {/* <div
-              className="flex"
-              style={{
-                flexWrap: isSmallScreen ? 'wrap' : 'nowrap',
               }}
             >
               <Label
@@ -1031,7 +939,7 @@ export default function Map({ locations }: locationProps) {
                   </Command>
                 </PopoverContent>
               </Popover>
-            </div> */}
+            </div>
 
             <div
               className="flex"
@@ -1159,7 +1067,6 @@ export default function Map({ locations }: locationProps) {
                 />
               </div>
             </div>
-
             <div className="flex justify-end mt-3 gap-2">
               <button
                 onClick={resetMapView}

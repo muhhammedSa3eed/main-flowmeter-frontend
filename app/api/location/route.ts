@@ -4,7 +4,9 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
 
   const area = searchParams.get('area');
-  const capacity = searchParams.get('capacity');
+  // const capacity = searchParams.get('capacity');
+  const capacityMin = searchParams.get('capacityMin');
+  const capacityMax = searchParams.get('capacityMax');
   const hours = searchParams.get('hours');
   const fromdate = searchParams.get('fromdate');
   const todate = searchParams.get('todate');
@@ -18,11 +20,23 @@ export async function GET(req: NextRequest) {
   }
 
   // Filter by capacity (only if provided & valid number)
-  if (capacity && !isNaN(Number(capacity))) {
+  if (
+    capacityMin &&
+    capacityMax &&
+    !isNaN(Number(capacityMin)) &&
+    !isNaN(Number(capacityMax))
+  ) {
+    const min = Number(capacityMin);
+    const max = Number(capacityMax);
     filtered = filtered.filter(
-      (location) => location.capacity === Number(capacity)
+      (location) => location.capacity >= min && location.capacity <= max
     );
   }
+  // if (capacity && !isNaN(Number(capacity))) {
+  //   filtered = filtered.filter(
+  //     (location) => location.capacity === Number(capacity)
+  //   );
+  // }
 
   // Filter by hours_til_maintenance (only if provided & valid number)
   if (hours && !isNaN(Number(hours))) {

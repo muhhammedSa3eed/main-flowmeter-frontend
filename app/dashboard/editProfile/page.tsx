@@ -18,7 +18,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import LoginButton from '@/components/motion/login';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Group } from '@/types';
+import { Role } from '@/types';
 import {
   Select,
   SelectContent,
@@ -35,7 +35,7 @@ export default function EditProfile() {
     resolver: zodResolver(EditProfileSchema),
     defaultValues: {
       name: '',
-      group: '',
+      role: '',
       info: '',
     },
   });
@@ -58,15 +58,15 @@ export default function EditProfile() {
       reader.readAsDataURL(file);
     }
   };
-  const [groups, setGroups] = useState<Group[]>([]);
+  const [roles, setRoles] = useState<Role[]>([]);
 
   useEffect(() => {
-    const fetchGroups = async () => {
+    const fetchRoles = async () => {
       try {
         const token = Cookies.get('token');
-
+        console.log({ token });
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/groups`,
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/roles`,
           {
             headers: {
               Authorization: token ? `Bearer ${token}` : '',
@@ -74,139 +74,146 @@ export default function EditProfile() {
             credentials: 'include',
           }
         );
-        if (!res.ok) throw new Error('Failed to fetch groups');
+        if (!res.ok) throw new Error('Failed to fetch roles');
 
-        const data: Group[] = await res.json(); // ⬅️ Typed!
-        setGroups(data);
+        const data: Role[] = await res.json(); // ⬅️ Typed!
+        setRoles(data);
       } catch (error) {
-        console.error('Failed to fetch groups', error);
+        console.error('Failed to fetch roles', error);
       }
     };
 
-    fetchGroups();
+    fetchRoles();
   }, []);
   return (
-    <div className="flex justify-center">
-      <Card className="overflow-hidden border-2 border-custom-green w-2/4">
-        <CardContent className="grid p-0 md:grid-cols-2">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 md:p-8">
-              <div className="flex flex-col gap-6">
-                <div className="flex flex-col items-center text-center">
-                  <h1 className="text-2xl font-bold text-custom-green">
-                    Update Profile
-                  </h1>
-                  <p className="text-balance text-muted-foreground">
-                    Update your RFP account
-                  </p>
-                </div>
-
-                <div className="grid gap-2">
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Username</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Username" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <div className="grid gap-2">
-                  <FormField
-                    control={form.control}
-                    name="info"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Description</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Description" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="group relative flex-1">
-                  {/* Overlapping Label */}
-                  <FormLabel
-                    htmlFor={id}
-                    className="absolute start-1 top-0 z-10 block -translate-y-1/2 bg-background px-2 text-xs font-medium text-foreground group-has-[select:disabled]:opacity-50"
-                  >
-                    Role
-                  </FormLabel>
-
-                  {/* Select Field */}
-                  <FormField
-                    control={form.control}
-                    name="group"
-                    render={({ field }) => (
-                      <FormItem className="flex-1">
-                        <FormControl>
-                          <Select
-                            onValueChange={field.onChange}
-                            value={field.value}
-                          >
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Select a group" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {groups.map((item) => (
-                                <SelectItem key={item.id} value={item.name}>
-                                  {item.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <LoginButton type="submit" className="w-full">
-                  Update
-                </LoginButton>
-              </div>
-            </form>
-          </Form>
-
-          <div className="w-full flex justify-center items-center ">
-            <div className="w-full mx-auto">
-              <div className="w-full rounded-sm bg-cover bg-center bg-no-repeat items-center">
-                <div className="mx-auto flex justify-center w-[150px] h-[150px] relative">
-                  <Avatar className="w-full h-full mt-5 ">
-                    {selectedImage ? (
-                      <AvatarImage src={selectedImage} alt="Profile Image" />
-                    ) : (
-                      <AvatarFallback className="bg-gray-300 dark:bg-gray-700 flex items-center justify-center">
-                        <Camera className="text-black w-6 h-6" />
-                      </AvatarFallback>
-                    )}
-                  </Avatar>
-                  <div className="absolute bottom-1 right-1 bg-custom-green2 rounded-full w-6 h-6 text-center flex items-center justify-center">
-                    <Input
-                      type="file"
-                      id="upload_profile"
-                      className="hidden"
-                      accept="image/*"
-                      onChange={handleImageChange}
+    <div className="flex justify-center mt-12">
+      <Card className="overflow-hidden border-2 border-custom-green w-[80%] mx-auto md:w-2/3 lg:w-1/2 ">
+        <CardContent>
+          <div className="flex flex-col items-center text-center pt-3">
+            <h3 className="text-2xl font-bold text-custom-green">
+              Update Profile
+            </h3>
+            <p className="text-balance text-muted-foreground">
+              Update your RFP account
+            </p>
+          </div>
+          <div className="grid pb-4 md:pb-0 grid-cols-1 md:grid-cols-2">
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="p-6 md:px-4 md:pt-4"
+              >
+                <div className="flex flex-col gap-6">
+                  <div className="grid gap-2">
+                    <FormField
+                      control={form.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Username</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Username" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
-                    <Label htmlFor="upload_profile" className="cursor-pointer">
-                      <Camera className="text-black w-4 h-4" />
-                    </Label>
+                  </div>
+
+                  <div className="grid gap-2">
+                    <FormField
+                      control={form.control}
+                      name="info"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Description</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Description" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="group relative flex-1">
+                    {/* Overlapping Label */}
+                    <FormLabel
+                      htmlFor={id}
+                      className="absolute start-1 top-0 z-10 block -translate-y-1/2 bg-background px-2  font-medium text-foreground group-has-[select:disabled]:opacity-50"
+                    >
+                      Role
+                    </FormLabel>
+
+                    {/* Select Field */}
+                    <FormField
+                      control={form.control}
+                      name="role"
+                      render={({ field }) => (
+                        <FormItem className="flex-1">
+                          <FormControl>
+                            <Select
+                              onValueChange={field.onChange}
+                              value={field.value}
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Select a role" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {roles.map((item) => (
+                                  <SelectItem key={item.id} value={item.name}>
+                                    {item.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <LoginButton type="submit" className="w-full">
+                    Update
+                  </LoginButton>
+                </div>
+              </form>
+            </Form>
+
+            <div className="w-full flex justify-center items-center ">
+              <div className="w-full mx-auto">
+                <div className="w-full rounded-sm bg-cover bg-center bg-no-repeat items-center">
+                  <div className="mx-auto flex justify-center w-[150px] h-[150px] relative">
+                    <Avatar className="w-full h-full ">
+                      {selectedImage ? (
+                        <AvatarImage src={selectedImage} alt="Profile Image" />
+                      ) : (
+                        <AvatarFallback className="bg-gray-300 dark:bg-gray-700 flex items-center justify-center">
+                          <Camera className="text-black w-6 h-6" />
+                        </AvatarFallback>
+                      )}
+                    </Avatar>
+                    <div className="absolute bottom-3 right-2 bg-custom-green2 rounded-full w-6 h-6 text-center flex items-center justify-center">
+                      <Input
+                        type="file"
+                        id="upload_profile"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                      />
+                      <Label
+                        htmlFor="upload_profile"
+                        className="cursor-pointer"
+                      >
+                        <Camera className="text-black w-4 h-4" />
+                      </Label>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <h2 className="text-center mt-6 font-semibold dark:text-gray-300 ">
-                Upload Profile Image
-              </h2>
+                <h2 className="text-center mt-3 font-semibold dark:text-gray-300 ">
+                  Upload Profile Image
+                </h2>
+              </div>
             </div>
           </div>
         </CardContent>

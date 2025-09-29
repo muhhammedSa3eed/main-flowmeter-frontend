@@ -1,37 +1,38 @@
-import { Cable } from "lucide-react";
-import { columns } from "./columns";
-import { Suspense } from "react";
-import { dataPolling, dataType } from "@/lib/ConnectionsData";
-import ConnectDataTable from "./connectData-table";
-import Loading from "@/app/loading";
-import { DeviceDB } from "@/types";
-import { cookies } from "next/headers";
-import { fetchPreferences } from "@/lib/fetchPreferences";
+import { Cable } from 'lucide-react';
+import { columns } from './columns';
+import { Suspense } from 'react';
+import { dataPolling, dataType } from '@/lib/ConnectionsData';
+import ConnectDataTable from './connectData-table';
+import Loading from '@/app/loading';
+import { DeviceDB } from '@/types';
+import { cookies } from 'next/headers';
+import { fetchPreferences } from '@/lib/fetchPreferences';
 
 async function getDevices(): Promise<DeviceDB[]> {
-  const cookieStore = cookies();
+  // const cookieStore = cookies();
 
-  const cookieHeader = (await cookieStore)
-    .getAll()
-    .map((c) => `${encodeURIComponent(c.name)}=${encodeURIComponent(c.value)}`)
-    .join("; ");
-
+  // const cookieHeader = (await cookieStore)
+  //   .getAll()
+  //   .map((c) => `${encodeURIComponent(c.name)}=${encodeURIComponent(c.value)}`)
+  //   .join("; ");
+  const cookieStore = await cookies();
+  const token = cookieStore.get('token')?.value || '';
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_BASE_URL}/devices/`,
     {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "Content-Type": "application/json",
-        cookie: cookieHeader, 
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
       },
     }
   );
 
-  if (!response.ok) throw new Error("Failed to fetch devices");
+  if (!response.ok) throw new Error('Failed to fetch devices');
 
   return await response.json();
 }
-const tableName = "ConnectionsTable";
+const tableName = 'ConnectionsTable';
 
 export default async function Page() {
   const devices = await getDevices();

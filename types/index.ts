@@ -20,18 +20,18 @@ export interface RfpFormData {
     siteManagerName?: string;
     locationType: string;
   };
- 
-    approvalDetails: {
-      approvalExpiry: string;
-      approvedReapplication: string;
-      appealApplication: string;
-      appealExtensionApplication: string;
-      appealExtensionDecision: string;
-      panelAppealMeeting: string;
-      panelAppealDecisionDate: string;
-      doeAppealDecisionDate: string;
-      panelAppealFinalResult: string;
-    };
+
+  approvalDetails: {
+    approvalExpiry: string;
+    approvedReapplication: string;
+    appealApplication: string;
+    appealExtensionApplication: string;
+    appealExtensionDecision: string;
+    panelAppealMeeting: string;
+    panelAppealDecisionDate: string;
+    doeAppealDecisionDate: string;
+    panelAppealFinalResult: string;
+  };
   MonitoringDetails: {
     location: {
       region: string;
@@ -102,10 +102,9 @@ export interface RfpFormData {
   };
   attachments: [
     {
-      CollaborationCertificate:string;
-      AnotherFile:[];
-      FlowMeterImages:[];
-
+      CollaborationCertificate: string;
+      AnotherFile: [];
+      FlowMeterImages: [];
     }
   ];
 }
@@ -114,7 +113,7 @@ export interface Attachment {
   id: string;
   rfpId: number;
   type: string;
-  typeOfAttachment:string;
+  typeOfAttachment: string;
   filePath: string;
   filename_disk: string;
   filename_download: string;
@@ -134,15 +133,11 @@ export interface Attachment {
   uploaderId: string | null;
 }
 
-
-
 export interface RfpDateField {
   name: string; // Allow nested paths
   label: string;
   type?: string;
 }
-
-
 
 export type Devices = {
   id: string;
@@ -157,7 +152,7 @@ export type Devices = {
     ip: string;
     port: number;
     host: number;
-    DSN:string;
+    DSN: string;
     SQLAlchemyURL: string;
     user: string;
     password: string;
@@ -195,32 +190,32 @@ export type WebAPI = {
 };
 
 export type DeviceDB = {
-  id:string
-  name: string,
-  description: string,
-  type: string,
+  id: string;
+  name: string;
+  description: string;
+  type: string;
   property: {
-    dbType:string;
-    databaseName: string,
-    method: string,
-    format: string,
-    address: string,
-    ip: string,
-    port: number,
-    host: string,
-    DSN:string;
-    user: string,
-    password: string,
-  },
+    dbType: string;
+    databaseName: string;
+    method: string;
+    format: string;
+    address: string;
+    ip: string;
+    port: number;
+    host: string;
+    DSN: string;
+    user: string;
+    password: string;
+  };
 
-  polling: number,
-  enabled: boolean,
+  polling: number;
+  enabled: boolean;
 };
 export type DashboardStats = {
-  rfpCount: number
-  userCount: number
-  connectionCount: number
-}
+  rfpCount: number;
+  userCount: number;
+  connectionCount: number;
+};
 ////////////////////////////////////////
 
 export type ApprovalDetails = {
@@ -336,13 +331,10 @@ export type GeneralInfo = {
   faxNumber: string;
 };
 
-
-
 export type LocationType = {
   id: number;
   rfpId: number;
   type: string;
-
 };
 export type RFP = {
   id: number;
@@ -376,21 +368,19 @@ export interface Option {
   icon: string;
 }
 
-
-
 export type User = {
   id: string;
-  username:string;
+  username: string;
   name: string;
   email: string;
   status: string;
   loginAttempts: string;
   createdAt: string;
   updatedAt: string;
-  group: {
-      id: number,
-      name: string
-  }
+  role: {
+    id: number;
+    name: string;
+  };
 };
 
 export interface TablePermission {
@@ -404,13 +394,11 @@ export interface TablePermission {
   canDelete: boolean;
 }
 
-export interface Group {
+export interface Role {
   id: number;
   name: string;
   tablePermissions: TablePermission[];
 }
-
-
 
 export type PermissionPayload = {
   userId: string;

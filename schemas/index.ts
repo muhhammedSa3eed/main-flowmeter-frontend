@@ -32,8 +32,8 @@ const stepTwoSchema = z.object({
   rfpNo: z.string().min(1, 'rfpNo is required'),
   licensee: z.string().min(1, 'Licensee is required'),
   address: z.string().min(1, 'Address is required'),
-  contactNumber: z.coerce.number().min(1, 'Contact number is required'),
-  faxNumber: z.coerce.number().optional(),
+  contactNumber: z.string().min(1, 'Contact number is required'),
+  faxNumber: z.string().optional(),
   // faxNumber: z.coerce.number().min(1, 'fax Number is required'),
   reportDate: z.string().min(1, 'Report Date is required'),
   reportRef: z.string().min(1, 'Report Reference is required'),
@@ -79,14 +79,13 @@ const stepFourSchema = z.object({
     coordinateN: z.number().min(1, 'Coordinate N is required'),
     coordinateE: z.number().min(1, 'Coordinate E is required'),
     siteDrawingRef: z.string().min(1, 'Site Drawing Reference is required'),
-    // flowDiagramRef: z.string().min(1, 'Flow Diagram Reference is required'),
-   
+    flowDiagramRef: z.string().min(1, 'Flow Diagram Reference is required'),
   }),
 });
 
 const stepFiveSchema = z.object({
   flowMonitoring: z.object({
-    flowDiagramRef: z.string().min(1, 'flow Diagram Reference is required'),
+    // flowDiagramRef: z.string().min(1, 'flow Diagram Reference is required'),
     meterInstallDate: z.string().min(1, 'Meter install date is required'),
     meterRemovalDate: z.string().min(1, 'Meter removal date is required'),
     selectedOption: z.string().min(1, 'Selected option is required'),
@@ -304,10 +303,10 @@ export const UserSchema = z.object({
   username: z.string().min(1, { message: 'Username is required' }),
   email: z.string().email({ message: 'A valid email is required' }),
   password: z.string().min(1, { message: 'Password is required' }),
-  group: z.string().min(1),
+  role: z.string().min(1),
 });
-export const GroupSchema = z.object({
-  name: z.string().min(1, { message: 'Group name is required' }),
+export const RoleSchema = z.object({
+  name: z.string().min(1, { message: 'role name is required' }),
   permissions: z.array(
     z.object({
       tableName: z.string(),
@@ -320,7 +319,7 @@ export const GroupSchema = z.object({
 });
 export const EditUserSchema = z.object({
   status: z.string().min(1, { message: 'status is required' }),
-  group: z.string().min(1, { message: 'group is required' }),
+  role: z.string().min(1, { message: 'role is required' }),
 });
 export const SignUpSchema = z.object({
   username: z.string().min(1, { message: 'Username is required' }),
@@ -339,7 +338,7 @@ export const SignUpSchema = z.object({
 export const EditProfileSchema = z.object({
   name: z.string().min(1, { message: 'name is required' }),
   info: z.string().optional(),
-  group: z.string().min(1, { message: 'group is required' }),
+  role: z.string().min(1, { message: 'role is required' }),
 });
 
 export const InviteSchema = z.object({
@@ -352,4 +351,45 @@ export const SendOtpSchema = z.object({
 export const VerifyOtpSchema = z.object({
   email: z.string().email('Please enter a valid email address.'),
   otp: z.string().min(1, { message: 'otp is required' }),
+});
+
+export const UncertaintySchema = z.object({
+  'relative uncertainty': z.number().optional(),
+  effects_relative_uncertainty_list: z.array(z.any()).optional(),
+  opert_temperature_c: z.number().optional(),
+  uncert_temperature_c: z.number().optional(),
+  'no decimal points': z.number().optional(),
+  'max current output': z.number().optional(),
+  'full flow scale': z.number().optional(),
+  'min current output': z.number().optional(),
+  'repeatability error': z.number().optional(),
+  'meter accuracy': z.number().optional(),
+  'test samples': z.array(z.tuple([z.number(), z.number()])).optional(),
+  'start date': z.string().optional(),
+  'end date': z.string().optional(),
+  'flow reference standard': z.number().optional(),
+  'probability distribution': z.string(),
+  'sensitivity coefficient': z.number(),
+});
+
+export const ReportSchema = z.object({
+  'Primary Metering Device': z.object({
+    'specified uncertainty from manufacturer': UncertaintySchema,
+    'installation effects': UncertaintySchema,
+    'hydraulic effect': UncertaintySchema,
+    'unsteady flow': UncertaintySchema,
+    'env temperature effect': UncertaintySchema,
+  }),
+  'Secondary Metering Device': z.object({
+    'electronic instrumentation': UncertaintySchema,
+    'display resolution': UncertaintySchema,
+    'signal conversion': UncertaintySchema,
+  }),
+  'Data Collection': z.object({
+    'weighted error': UncertaintySchema,
+    'data signal conversion': UncertaintySchema,
+    'estimates for missing data': UncertaintySchema,
+  }),
+  'In Situ Flow comparison': UncertaintySchema,
+  'coverage probability': z.number(),
 });

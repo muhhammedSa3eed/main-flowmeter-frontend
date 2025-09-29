@@ -30,10 +30,10 @@ export const initialFormData: RfpFormData = {
   GeneralInfo: {
     licensee: '',
     address: '',
-    contactNumber: 0,
+    contactNumber: '',
     reportRef: '',
     rfpNo: '',
-    faxNumber: 0,
+    faxNumber: '',
     reportDate: '',
     responsiblePosition: '',
     responsibleDepartment: '',
@@ -63,11 +63,12 @@ export const initialFormData: RfpFormData = {
       coordinateN: 0,
       coordinateE: 0,
       siteDrawingRef: '',
+      flowDiagramRef: '',
     },
   },
   FlowmeterDetails: {
     flowMonitoring: {
-      flowDiagramRef: '',
+      // flowDiagramRef: '',
       meterInstallDate: '',
       meterRemovalDate: '',
       selectedOption: '',

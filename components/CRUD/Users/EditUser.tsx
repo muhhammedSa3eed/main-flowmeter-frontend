@@ -4,8 +4,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import React, { useEffect, useId, useState } from "react";
+} from '@/components/ui/select';
+import React, { useEffect, useId, useState } from 'react';
 import {
   Form,
   FormControl,
@@ -13,24 +13,24 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+} from '@/components/ui/form';
 // import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { EditUserSchema } from "@/schemas";
-import { toast } from "react-hot-toast";
-import { Group, User } from "@/types";
-import { useRouter } from "next/navigation";
-import Cookies from "js-cookie";
+import { Button } from '@/components/ui/button';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { EditUserSchema } from '@/schemas';
+import { toast } from 'react-hot-toast';
+import { Role, User } from '@/types';
+import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
 import {
   SheetClose,
   SheetDescription,
   SheetFooter,
   SheetTitle,
-} from "@/components/ui/sheet";
-import { Badge } from "@/components/ui/badge";
+} from '@/components/ui/sheet';
+import { Badge } from '@/components/ui/badge';
 
 interface EditUserProps {
   users: User;
@@ -39,30 +39,28 @@ interface EditUserProps {
 const status = [
   {
     Id: 1,
-    Value: "active",
+    Value: 'active',
     label: <Badge className="bg-green-500">Active</Badge>,
   },
   {
     Id: 2,
-    Value: "inactive",
+    Value: 'inactive',
     label: <Badge className="bg-gray-400">Inactive</Badge>,
   },
   {
     Id: 3,
-    Value: "suspended",
+    Value: 'suspended',
     label: <Badge className="bg-yellow-500">Suspended</Badge>,
   },
   {
     Id: 4,
-    Value: "pending",
+    Value: 'pending',
     label: <Badge className="bg-blue-500">Pending</Badge>,
   },
   {
     Id: 5,
-    Value: "banned",
-    label: <Badge className="bg-red-600">
-      Banned
-    </Badge>,
+    Value: 'banned',
+    label: <Badge className="bg-red-600">Banned</Badge>,
   },
 ];
 
@@ -70,13 +68,13 @@ export default function EditUser({ users }: EditUserProps) {
   const id = useId();
 
   const router = useRouter();
-  const token = Cookies.get("token");
-
+  const token = Cookies.get('token');
+  console.log({ token });
   const form = useForm<z.infer<typeof EditUserSchema>>({
     resolver: zodResolver(EditUserSchema),
     defaultValues: {
       status: users.status,
-      group: users.group.name,
+      role: users.role.name,
     },
   });
 
@@ -92,13 +90,13 @@ export default function EditUser({ users }: EditUserProps) {
         `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/${users.id}`,
 
         {
-          method: "PUT",
+          method: 'PUT',
           headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            Authorization: token ? `Bearer ${token}` : "",
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            Authorization: token ? `Bearer ${token}` : '',
           },
-          credentials: "include",
+          credentials: 'include',
           body: JSON.stringify(payload),
         }
       );
@@ -106,11 +104,12 @@ export default function EditUser({ users }: EditUserProps) {
       if (!response.ok) {
         const errorData = await response.json();
         console.log({ errorData });
-        toast.error(errorData.message || "An error occurred.");
+        toast.error(errorData.message || 'An error occurred.');
       } else {
-        toast.success("User has been successfully Updated.");
+        toast.success('User has been successfully Updated.');
         form.reset();
         router.refresh();
+
         // window.location.reload();
       }
 
@@ -119,36 +118,36 @@ export default function EditUser({ users }: EditUserProps) {
       if (err instanceof Error) {
         toast.error(`Failed to update User: ${err.message}`);
       } else {
-        toast.error("Failed to update User due to an unknown error.");
+        toast.error('Failed to update User due to an unknown error.');
       }
     }
   }
-  const [groups, setGroups] = useState<Group[]>([]);
+  const [roles, setRoles] = useState<Role[]>([]);
 
   useEffect(() => {
-    const fetchGroups = async () => {
+    const fetchRoles = async () => {
       try {
-        const token = Cookies.get("token");
+        const token = Cookies.get('token');
 
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/groups`,
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/roles`,
           {
             headers: {
-              Authorization: token ? `Bearer ${token}` : "",
+              Authorization: token ? `Bearer ${token}` : '',
             },
-            credentials: "include",
+            credentials: 'include',
           }
         );
-        if (!res.ok) throw new Error("Failed to fetch groups");
+        if (!res.ok) throw new Error('Failed to fetch roles');
 
-        const data: Group[] = await res.json(); // ⬅️ Typed!
-        setGroups(data);
+        const data: Role[] = await res.json(); // ⬅️ Typed!
+        setRoles(data);
       } catch (error) {
-        console.error("Failed to fetch groups", error);
+        console.error('Failed to fetch roles', error);
       }
     };
 
-    fetchGroups();
+    fetchRoles();
   }, []);
   return (
     <>
@@ -172,7 +171,7 @@ export default function EditUser({ users }: EditUserProps) {
             {/* Select Field */}
             <FormField
               control={form.control}
-              name="group"
+              name="role"
               render={({ field }) => (
                 <FormItem className="flex-1">
                   <FormControl>
@@ -181,7 +180,7 @@ export default function EditUser({ users }: EditUserProps) {
                         <SelectValue placeholder="Select a group" />
                       </SelectTrigger>
                       <SelectContent>
-                        {groups.map((item) => (
+                        {roles.map((item) => (
                           <SelectItem key={item.id} value={item.name}>
                             {item.name}
                           </SelectItem>
@@ -228,21 +227,23 @@ export default function EditUser({ users }: EditUserProps) {
               )}
             />
           </div>
-         
+
           <SheetFooter>
             <SheetClose asChild>
               <Button size="custom" variant="destructive" className="mr-auto">
                 Cancel
               </Button>
             </SheetClose>
-            <Button
-              type="submit"
-              size="custom"
-              variant={"Accepted"}
-              className="ml-auto"
-            >
-              Save
-            </Button>
+            <SheetClose asChild>
+              <Button
+                type="submit"
+                size="custom"
+                variant={'Accepted'}
+                className="ml-auto"
+              >
+                Save
+              </Button>
+            </SheetClose>
           </SheetFooter>
         </form>
       </Form>

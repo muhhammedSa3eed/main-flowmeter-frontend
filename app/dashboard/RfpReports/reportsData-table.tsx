@@ -50,15 +50,6 @@ import { cn } from '@/lib/utils';
 
 import { ScrollArea } from '@/components/ui/scroll-area';
 
-import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet';
 import { Checkbox } from '@/components/ui/checkbox';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
@@ -72,7 +63,6 @@ import { Label } from '@/components/ui/label';
 interface DataTableProps<TData, TValue> {
   columns: any;
   data: TData[];
-  preferences: any;
 }
 
 declare module '@tanstack/table-core' {
@@ -90,10 +80,9 @@ const fuzzyFilter: FilterFn<unknown> = (row, columnId, value, addMeta) => {
   return itemRank.passed;
 };
 
-export default function RFpDataTable<TData, TValue>({
-  columns,
+export default function ReportsDataTable<TData, TValue>({
   data,
-  preferences,
+  columns,
 }: DataTableProps<TData, TValue>) {
   const tableName = 'RFpDataTable';
 
@@ -105,18 +94,18 @@ export default function RFpDataTable<TData, TValue>({
   const inputRef = useRef<HTMLInputElement>(null);
   const [dataTable, setDataTable] = useState(data);
   useEffect(() => setDataTable(data), [data]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
-    preferences || {}
-  );
-  const [tempColumnVisibility, setTempColumnVisibility] = useState(
-    preferences || {}
-  );
+  //   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
+  //     preferences || {}
+  //   );
+  //   const [tempColumnVisibility, setTempColumnVisibility] = useState(
+  //     preferences || {}
+  //   );
 
   const table = useReactTable({
     data: dataTable,
     columns,
     filterFns: { fuzzy: fuzzyFilter },
-    state: { sorting, columnFilters, columnVisibility, globalFilter },
+    state: { sorting, columnFilters, globalFilter },
     globalFilterFn: fuzzyFilter,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -124,7 +113,7 @@ export default function RFpDataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
     onSortingChange: setSorting,
-    onColumnVisibilityChange: setColumnVisibility,
+    // onColumnVisibilityChange: setColumnVisibility,
     onGlobalFilterChange: setGlobalFilter,
   });
   const exportToExcel = () => {
@@ -168,7 +157,7 @@ export default function RFpDataTable<TData, TValue>({
           </div>
 
           {/* Toggle columns visibility */}
-          <Sheet>
+          {/* <Sheet>
             <SheetTrigger asChild>
               <Button variant="outline" className="border-green-500">
                 <Columns3Icon className="-ms-1 opacity-60" size={16} />
@@ -290,7 +279,7 @@ export default function RFpDataTable<TData, TValue>({
                 </Button>
               </SheetClose>
             </SheetContent>
-          </Sheet>
+          </Sheet> */}
           <Button
             variant="outline"
             className="border-green-500"
@@ -301,14 +290,14 @@ export default function RFpDataTable<TData, TValue>({
           </Button>
         </div>
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/flow-meter-form">
+          <Link href="/dashboard/RfpReports/add-report">
             <Button className="ml-auto" variant={'custom'}>
               <CirclePlus
                 className="-ms-1 opacity-60"
                 size={16}
                 aria-hidden="true"
               />
-              Add New Flow-meter
+              Add Report
             </Button>
           </Link>
         </div>

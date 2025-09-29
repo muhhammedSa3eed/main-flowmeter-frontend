@@ -9,8 +9,8 @@ import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 
-import { GroupSchema } from "@/schemas";
-import { Group } from "@/types";
+import { RoleSchema } from "@/schemas";
+import {  Role } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -47,11 +47,11 @@ const CrudOptions = [
 
 const availableTables = ["Devices", "Users", "Rfp","Permissions"];
 
-interface EditGroupProps {
-  groups: Group;
+interface EditRolesProps {
+  roles: Role;
 }
 
-export default function EditGroup({ groups }: EditGroupProps) {
+export default function EditGroup({ roles }: EditRolesProps) {
   const id = useId();
   const token = Cookies.get("token");
   const router = useRouter();
@@ -61,11 +61,11 @@ export default function EditGroup({ groups }: EditGroupProps) {
     Record<string, string[]>
   >({});
 
-  const form = useForm<z.infer<typeof GroupSchema>>({
-    resolver: zodResolver(GroupSchema),
+  const form = useForm<z.infer<typeof RoleSchema>>({
+    resolver: zodResolver(RoleSchema),
     defaultValues: {
-      name: groups.name,
-      permissions: groups.tablePermissions || [],
+      name: roles.name,
+      permissions: roles.tablePermissions || [],
     },
   });
 
@@ -73,7 +73,7 @@ export default function EditGroup({ groups }: EditGroupProps) {
     const initSelected: string[] = [];
     const initPerms: Record<string, string[]> = {};
 
-    groups.tablePermissions?.forEach((perm) => {
+    roles.tablePermissions?.forEach((perm) => {
       const { tableName, canCreate, canRead, canUpdate, canDelete } = perm;
       const perms: string[] = [];
       if (canCreate) perms.push("canCreate");
@@ -88,9 +88,9 @@ export default function EditGroup({ groups }: EditGroupProps) {
 
     setSelectedTables(initSelected);
     setTablePermissions(initPerms);
-  }, [groups.tablePermissions]);
+  }, [roles.tablePermissions]);
 
-  async function onSubmit(values: z.infer<typeof GroupSchema>) {
+  async function onSubmit(values: z.infer<typeof RoleSchema>) {
     const permissionsPayload = selectedTables.map((table) => {
       const perms = tablePermissions[table] || [];
       return {
@@ -109,7 +109,7 @@ export default function EditGroup({ groups }: EditGroupProps) {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/groups/${groups.id}`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/roles/${roles.id}`,
         {
           method: "PUT",
           headers: {

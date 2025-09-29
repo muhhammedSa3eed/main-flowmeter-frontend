@@ -1,57 +1,57 @@
-"use client";
+'use client';
 
-import { useFormContext } from "react-hook-form";
+import { useFormContext } from 'react-hook-form';
 import {
   FormField,
   FormItem,
   FormControl,
   FormMessage,
   FormLabel,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { RfpDateField, RfpFormData } from "@/types";
-import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { RfpDateField, RfpFormData } from '@/types';
+import { format } from 'date-fns';
+import { CalendarIcon } from 'lucide-react';
 
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar } from '@/components/ui/calendar';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
+} from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { useId, useState } from "react";
+} from '@/components/ui/popover';
+import { useId, useState } from 'react';
 
 export const Step2 = () => {
   const { control } = useFormContext<RfpFormData>();
   const id = useId();
   const fields: RfpDateField[] = [
-    { name: "GeneralInfo.reportDate", label: "Report Date" },
+    { name: 'GeneralInfo.reportDate', label: 'Report Date' },
   ];
   const years = Array.from({ length: 30 }, (_, i) => 2000 + i);
   const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
   ];
 
   const [dates, setDates] = useState<Record<string, Date | undefined>>({});
@@ -59,20 +59,20 @@ export const Step2 = () => {
   const [yearsState, setYearsState] = useState<Record<string, number>>({});
 
   const radioGroups = [
-    { id: 0, value: "inletToWwTreatment", title: "Inlet to WW Treatment" },
+    { id: 0, value: 'inletToWwTreatment', title: 'Inlet to WW Treatment' },
     {
       id: 1,
-      value: "outletFromWwTreatment",
-      title: "Outlet from WW Treatment",
+      value: 'outletFromWwTreatment',
+      title: 'Outlet from WW Treatment',
     },
-    { id: 2, value: "terminalPumpingOutput", title: "Terminal Pumping Output" },
+    { id: 2, value: 'terminalPumpingOutput', title: 'Terminal Pumping Output' },
     {
       id: 3,
-      value: "wastewaterTankerDischarge",
-      title: "Wastewater Tanker Discharge",
+      value: 'wastewaterTankerDischarge',
+      title: 'Wastewater Tanker Discharge',
     },
-    { id: 4, value: "tankerFillPoint", title: "Tanker Fill Point" },
-    { id: 5, value: "incidentReporting", title: "Incident Reporting" },
+    { id: 4, value: 'tankerFillPoint', title: 'Tanker Fill Point' },
+    { id: 5, value: 'incidentReporting', title: 'Incident Reporting' },
   ];
 
   // Watch current values
@@ -99,7 +99,7 @@ export const Step2 = () => {
                 <Input
                   placeholder="Enter Licensee"
                   {...field}
-                  value={field.value ?? ""}
+                  value={field.value ?? ''}
                 />
               </FormControl>
               <FormMessage />
@@ -119,7 +119,7 @@ export const Step2 = () => {
                 <Input
                   placeholder="Enter Address"
                   {...field}
-                  value={field.value ?? ""}
+                  value={field.value ?? ''}
                 />
               </FormControl>
               <FormMessage />
@@ -139,7 +139,7 @@ export const Step2 = () => {
                 <Input
                   placeholder="Enter Report Reference"
                   {...field}
-                  value={field.value ?? ""}
+                  value={field.value ?? ''}
                 />
               </FormControl>
               <FormMessage />
@@ -169,32 +169,32 @@ export const Step2 = () => {
 
               const updateDate = (newDate: Date | undefined) => {
                 setDates((prev) => ({ ...prev, [fieldDef.name]: newDate }));
-                field.onChange(newDate ? newDate.toISOString() : "");
+                field.onChange(newDate ? newDate.toISOString() : '');
               };
 
               return (
                 <FormItem>
                   <FormControl>
-                    <div className="*:not-first:mt-2">
+                    <div className="*:not-first:mt-3">
                       <Label htmlFor={id}>{fieldDef.label}</Label>
                       <Popover>
                         <PopoverTrigger asChild>
                           <Button
-                            variant={"outline"}
+                            variant={'outline'}
                             className={cn(
-                              "group bg-background hover:bg-background border-input w-full justify-between px-3 font-normal outline-offset-0 outline-none focus-visible:outline-[3px]",
-                              !currentDate && "text-muted-foreground"
+                              'group bg-background hover:bg-background border-input w-full justify-between px-3 font-normal outline-offset-0 outline-none focus-visible:outline-[3px] mb-0',
+                              !currentDate && 'text-muted-foreground'
                             )}
                           >
                             <span
                               className={cn(
-                                "truncate",
-                                !currentDate && "text-muted-foreground"
+                                'truncate',
+                                !currentDate && 'text-muted-foreground'
                               )}
                             >
                               {currentDate
-                                ? format(currentDate, "PPP")
-                                : "Pick a date"}
+                                ? format(currentDate, 'PPP')
+                                : 'Pick a date'}
                             </span>
                             <CalendarIcon
                               size={16}
@@ -285,22 +285,12 @@ export const Step2 = () => {
                 Contact Number <span className="text-red-500">*</span>
               </label>
               <FormControl>
-              <Input
-                  type="number"
-                  value={field.value ?? ""}
-                  onChange={(e) =>
-                    field.onChange(
-                      e.target.value === "" ? undefined : Number(e.target.value)
-                    )
-                  }
-                />
+                <Input type="text" {...field} value={field.value ?? ''} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-
-
 
         <FormField
           control={control}
@@ -309,15 +299,7 @@ export const Step2 = () => {
             <FormItem>
               <label className="block text-sm font-medium">Fax Number</label>
               <FormControl>
-              <Input
-                  type="number"
-                  value={field.value ?? ""}
-                  onChange={(e) =>
-                    field.onChange(
-                      e.target.value === "" ? undefined : Number(e.target.value)
-                    )
-                  }
-                />
+                <Input type="text" {...field} value={field.value ?? ''} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -336,7 +318,7 @@ export const Step2 = () => {
                 <Input
                   placeholder="Responsible person for flowmeter location"
                   {...field}
-                  value={field.value ?? ""}
+                  value={field.value ?? ''}
                 />
               </FormControl>
               <FormMessage />
@@ -354,7 +336,7 @@ export const Step2 = () => {
                 <Input
                   placeholder="Responsible person for flowmeter location"
                   {...field}
-                  value={field.value ?? ""}
+                  value={field.value ?? ''}
                 />
               </FormControl>
               <FormMessage />
@@ -375,7 +357,7 @@ export const Step2 = () => {
                 <Input
                   placeholder="Enter SCADA ID"
                   {...field}
-                  value={field.value ?? ""}
+                  value={field.value ?? ''}
                 />
               </FormControl>
               <FormMessage />
@@ -395,7 +377,7 @@ export const Step2 = () => {
                 <Input
                   placeholder="Enter SWS Asset No"
                   {...field}
-                  value={field.value ?? ""}
+                  value={field.value ?? ''}
                 />
               </FormControl>
               <FormMessage />
@@ -413,7 +395,7 @@ export const Step2 = () => {
                 <Input
                   placeholder="Enter Site Manager Name"
                   {...field}
-                  value={field.value ?? ""}
+                  value={field.value ?? ''}
                 />
               </FormControl>
               <FormMessage />
@@ -431,7 +413,7 @@ export const Step2 = () => {
                 <Input
                   placeholder="Enter RFP No"
                   {...field}
-                  value={field.value ?? ""}
+                  value={field.value ?? ''}
                 />
               </FormControl>
               <FormMessage />

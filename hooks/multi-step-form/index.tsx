@@ -311,9 +311,10 @@ function useMultiStepForm<T extends UseMultiStepFormTypeOptions<any>>(
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              Authorization: token
-                ? `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjA5YmExMDEzLTIyNTUtNDdkYi1iOTllLWViNmI3M2Q3ZDI0ZiIsImVtYWlsIjoid2FsYWFlbWFtMDc3QGdtYWlsLmNvbSIsImdyb3VwIjoiU3VwZXJBZG1pbiIsImlhdCI6MTc1ODE3NzQ1MiwiZXhwIjoxNzU4MTc4MzUyfQ.8cDTbKBOxJ3begYeV0zlnZJOCZ5RBg4s0Cn_9pOfAyI`
-                : '',
+              Authorization: token ? `Bearer ${token}` : '',
+              // Authorization: token
+              //   ? `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjA5YmExMDEzLTIyNTUtNDdkYi1iOTllLWViNmI3M2Q3ZDI0ZiIsImVtYWlsIjoid2FsYWFlbWFtMDc3QGdtYWlsLmNvbSIsImdyb3VwIjoiU3VwZXJBZG1pbiIsImlhdCI6MTc1ODE3NzQ1MiwiZXhwIjoxNzU4MTc4MzUyfQ.8cDTbKBOxJ3begYeV0zlnZJOCZ5RBg4s0Cn_9pOfAyI`
+              //   : '',
             },
             body: JSON.stringify(values),
             credentials: 'include',

@@ -22,9 +22,6 @@ type RowActionsProps = {
 
 export default function RowActions({ row }: RowActionsProps) {
   const [isDeleteDeviceOpen, setIsDeleteDeviceOpen] = useState(false);
-
-
-
   const handleDeleteUserOpen = () => setIsDeleteDeviceOpen(true);
 
   return (

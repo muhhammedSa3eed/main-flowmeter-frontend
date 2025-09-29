@@ -4,7 +4,7 @@ export type Location = {
   area?: string;
   coordinates: [number, number];
   path: string;
-  capacity?: number; // m³/h
+  capacity: number; // m³/h
   installation_date?: string; // ISO format
   hours_til_maintenance?: number;
 };

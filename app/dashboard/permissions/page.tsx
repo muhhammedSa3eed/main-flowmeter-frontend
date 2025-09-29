@@ -1,44 +1,45 @@
-import { Suspense } from "react";
-import Loading from "@/app/loading";
-import { ShieldCheck } from "lucide-react";
-import PermissionsTable from "./PermissionsTable";
-import { cookies } from "next/headers";
-import { columns } from "./columns";
-import { Group } from "@/types";
-import { fetchPreferences } from "@/lib/fetchPreferences";
+import { Suspense } from 'react';
+import Loading from '@/app/loading';
+import { ShieldCheck } from 'lucide-react';
+import PermissionsTable from './PermissionsTable';
+import { cookies } from 'next/headers';
+import { columns } from './columns';
+import { Group } from '@/types';
+import { fetchPreferences } from '@/lib/fetchPreferences';
 async function getAllGroup(): Promise<Group[]> {
-  const cookieStore = cookies();
+  // const cookieStore = cookies();
 
-  const cookieHeader = (await cookieStore)
-    .getAll()
-    .map((c) => `${encodeURIComponent(c.name)}=${encodeURIComponent(c.value)}`)
-    .join("; ");
+  // const cookieHeader = (await cookieStore)
+  //   .getAll()
+  //   .map((c) => `${encodeURIComponent(c.name)}=${encodeURIComponent(c.value)}`)
+  //   .join("; ");
+  const cookieStore = await cookies();
+  const token = cookieStore.get('token')?.value || '';
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/users//groups`,
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/groups`,
     {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "Content-Type": "application/json",
-        cookie: cookieHeader,
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
       },
-      credentials: "include",
+      credentials: 'include',
     }
   );
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch Groups");
-  }
+  // if (!response.ok) {
+  //   throw new Error('Failed to fetch Groups');
+  // }
 
   const UsersData = await response.json();
   return UsersData;
 }
-const tableName = "Permissions";
-
+const tableName = 'Permissions';
 
 export default async function Page() {
   const GroupsData = await getAllGroup();
   const preferences = await fetchPreferences(tableName);
-  console.log("Groups :", GroupsData);
+  console.log('Groups :', GroupsData);
   return (
     <Suspense fallback={<Loading />}>
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
@@ -49,7 +50,11 @@ export default async function Page() {
             </div>
             <div className="text-xl font-bold  gap-2">Permissions </div>
           </div>
-          <PermissionsTable data={GroupsData} columns={columns} preferences={preferences} />
+          <PermissionsTable
+            data={GroupsData}
+            columns={columns}
+            preferences={preferences}
+          />
         </div>
       </div>
     </Suspense>

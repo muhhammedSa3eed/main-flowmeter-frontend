@@ -83,7 +83,7 @@ export function LoginForm({
       return;
     }
 
-    const userGroup = data?.user?.group?.name;
+    const userGroup = data?.user?.role?.name;
     const permissions = data?.user?.permissions;
 
     if (!userGroup || !permissions) {

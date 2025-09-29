@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   AlertDialogAction,
   AlertDialogCancel,
@@ -6,56 +6,51 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { buttonVariants } from "@/components/ui/button";
-import { toast } from "react-hot-toast";
-import { cn } from "@/lib/utils";
-import { Group } from "@/types";
-import { CircleAlert } from "lucide-react";
-import Cookies from "js-cookie";
+} from '@/components/ui/alert-dialog';
+import { buttonVariants } from '@/components/ui/button';
+import { toast } from 'react-hot-toast';
+import { cn } from '@/lib/utils';
+import { Role } from '@/types';
+import { CircleAlert } from 'lucide-react';
+import Cookies from 'js-cookie';
 
-export default function DeleteGroup({
-    groups,
-}: {
-    groups: Group;
-}) {
-
+export default function DeleteGroup({ roles }: { roles: Role }) {
   const handleDeleteUser = async () => {
-    console.log("groups.id", groups.id);
+    console.log('roles.id', roles.id);
     try {
-      const token = Cookies.get("token");
+      const token = Cookies.get('token');
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/groups/${groups.id}`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/roles/${roles.id}`,
         {
-          method: "DELETE",
+          method: 'DELETE',
           headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            Authorization: token ? `Bearer ${token}` : "",
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            Authorization: token ? `Bearer ${token}` : '',
           },
-          credentials: "include",
+          credentials: 'include',
         }
       );
 
       if (!response.ok) {
         // const errorData = await response.json();
         // toast.error(errorData.message || "Failed to delete the Group.");
-        toast.error(`Failed to delete Group`);
+        toast.error(`Failed to delete Role`);
         return; // Exit early if the response is not OK
       }
 
       // fetchDevices();
-      toast.success("The Group has been deleted successfully.");
+      toast.success('The Role has been deleted successfully.');
       window.location.reload();
     } catch (err) {
       if (err instanceof Error) {
-        toast.error(`Failed to delete Group: ${err.message}`);
+        toast.error(`Failed to delete Role: ${err.message}`);
       } else {
-        toast.error("Failed to delete Group due to an unknown error.");
+        toast.error('Failed to delete Role due to an unknown error.');
       }
     }
   };
-  console.log("groups.name:", groups.name);
+  console.log('gs.name:', roles.name);
   return (
     <>
       <AlertDialogHeader>
@@ -65,13 +60,13 @@ export default function DeleteGroup({
         </AlertDialogTitle>
         <AlertDialogDescription>
           This action cannot be undone. Do you want to permanently delete the
-          group <strong>{groups.name}</strong>
+          role <strong>{roles.name}</strong>
         </AlertDialogDescription>
       </AlertDialogHeader>
       <AlertDialogFooter>
         <AlertDialogCancel>Cancel</AlertDialogCancel>
         <AlertDialogAction
-          className={cn(buttonVariants({ variant: "destructive" }))}
+          className={cn(buttonVariants({ variant: 'destructive' }))}
           onClick={handleDeleteUser}
         >
           Delete
