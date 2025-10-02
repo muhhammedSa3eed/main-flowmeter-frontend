@@ -22,7 +22,7 @@ async function getAllFlowMeter(): Promise<any[]> {
   }
 
   const flowData = await response.json();
-  console.log('RFP Data :', flowData);
+
   return flowData?.data;
 }
 export default async function AddReportsPage() {
@@ -36,7 +36,7 @@ export default async function AddReportsPage() {
           {/* <div className="flex items-center justify-center gap-2 text-custom-green2 mb-3">
             <h2 className="text-xl font-bold">Add Report</h2>
           </div> */}
-          <AddReportForm flowMeterData={flowMeterData} token={token}/>
+          <AddReportForm flowMeterData={flowMeterData} token={token} />
           {/* <RfpReports RFpData={RFpData} /> */}
         </div>
       </div>

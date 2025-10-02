@@ -369,6 +369,7 @@ export const UncertaintySchema = z.object({
   flowReferenceStandard: z.number().optional(),
   probabilityDistribution: z.string(),
   sensitivityCoefficient: z.number(),
+  diameter: z.string().optional(),
 });
 
 export const ReportSchema = z.object({

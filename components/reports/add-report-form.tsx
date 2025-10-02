@@ -8,10 +8,12 @@ import { FlowMeterSearch } from './flowmeter-search';
 
 interface FlowData {
   flowMeterData: any;
-  token?:string
+  token?: string;
 }
-const AddReportForm = ({ flowMeterData ,token}: FlowData) => {
+const AddReportForm = ({ flowMeterData, token }: FlowData) => {
   const [showStepsForm, setShowStepsForm] = useState(false);
+  const [rfpIdData, setRfpIdData] = useState<number | undefined>(undefined);
+
   // console.log({ showStepsForm });
   return (
     <div>
@@ -19,9 +21,10 @@ const AddReportForm = ({ flowMeterData ,token}: FlowData) => {
         <FlowMeterSearch
           setShowStepsForm={setShowStepsForm}
           data={flowMeterData}
+          setRfpIdData={setRfpIdData}
         />
       )}
-      {showStepsForm && <StepsReportForm  token={token}/>}
+      {showStepsForm && <StepsReportForm token={token} rfpIdData={rfpIdData} />}
     </div>
   );
 };

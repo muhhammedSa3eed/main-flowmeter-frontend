@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -27,12 +28,34 @@ import { ReportSchema } from '@/schemas';
 import { CalendarIcon } from 'lucide-react';
 import { UseFormReturn } from 'react-hook-form';
 import { z } from 'zod';
-import { format, isValid, parseISO } from 'date-fns';
+import { addDays, format, isValid, parseISO } from 'date-fns';
+import { useEffect } from 'react';
 
 type StepThreeProps = {
   form: UseFormReturn<z.infer<typeof ReportSchema>>;
 };
 const StepThree = ({ form }: StepThreeProps) => {
+  console.log(form.watch('dataCollection.weightedError.startDate'));
+  console.log('endDate', form.watch('dataCollection.weightedError.endDate'));
+  const startDate = form.watch('dataCollection.weightedError.startDate');
+  const endDate = form.watch('dataCollection.weightedError.endDate');
+
+  useEffect(() => {
+    if (startDate) {
+      const parsedStart = parseISO(startDate);
+      if (isValid(parsedStart)) {
+        const plusOne = addDays(parsedStart, 1);
+
+        if (!endDate) {
+          form.setValue(
+            'dataCollection.weightedError.endDate',
+            format(plusOne, 'yyyy-MM-dd')
+          );
+        }
+      }
+    }
+  }, [startDate, endDate, form]);
+
   return (
     <div className=" px-6 space-y-6 ">
       <p className="text-gray-600  font-semibold text-center mb-8">
@@ -40,7 +63,7 @@ const StepThree = ({ form }: StepThreeProps) => {
       </p>
       <div className="space-y-6 mt-4">
         {/* Row 1 */}
-        <div className="grid grid-cols-4 items-center gap-4">
+        <div className="grid grid-cols-5 items-center gap-4">
           <h3 className="col-span-1 text-sm font-semibold">Weighted Error:</h3>
 
           <FormField
@@ -66,7 +89,7 @@ const StepThree = ({ form }: StepThreeProps) => {
                           {selectedDate ? (
                             format(selectedDate, 'PPP')
                           ) : (
-                            <span>Pick a date</span>
+                            <span>Start date</span>
                           )}
                           <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                         </Button>
@@ -83,9 +106,7 @@ const StepThree = ({ form }: StepThreeProps) => {
                             date ? format(date, 'yyyy-MM-dd') : undefined
                           )
                         }
-                        disabled={(date) =>
-                          date > new Date() || date < new Date('1900-01-01')
-                        }
+                        disabled={(date) => date < new Date('1900-01-01')}
                         captionLayout="dropdown"
                       />
                     </PopoverContent>
@@ -95,6 +116,69 @@ const StepThree = ({ form }: StepThreeProps) => {
                 </FormItem>
               );
             }}
+          />
+          <FormField
+            control={form.control}
+            name="dataCollection.weightedError.endDate"
+            render={({ field }) => {
+              const parsed = field.value ? parseISO(field.value) : undefined;
+              const selectedDate =
+                parsed && isValid(parsed) ? parsed : undefined;
+
+              return (
+                <FormItem className="w-full">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={'outline'}
+                          className={cn(
+                            'w-full pl-3 text-left font-normal',
+                            !field.value && 'text-muted-foreground'
+                          )}
+                        >
+                          {selectedDate ? (
+                            format(selectedDate, 'PPP')
+                          ) : (
+                            <span>End date</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={selectedDate}
+                        onSelect={(date) =>
+                          field.onChange(
+                            date ? format(date, 'yyyy-MM-dd') : undefined
+                          )
+                        }
+                        disabled={(date) => date < new Date('1900-01-01')}
+                        captionLayout="dropdown"
+                      />
+                    </PopoverContent>
+                  </Popover>
+
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
+          />
+
+          <FormField
+            control={form.control}
+            name="dataCollection.weightedError.diameter"
+            render={({ field }) => (
+              <FormItem className="col-span-1">
+                <FormControl>
+                  <Input placeholder="diameter" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
           <FormField
             control={form.control}
@@ -119,6 +203,7 @@ const StepThree = ({ form }: StepThreeProps) => {
               </FormItem>
             )}
           />
+          <div></div>
           <FormField
             control={form.control}
             name="dataCollection.weightedError.sensitivityCoefficient"

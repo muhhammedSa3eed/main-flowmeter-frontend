@@ -27,8 +27,9 @@ const steps = [
 ];
 interface searchStepData {
   token?: string;
+  rfpIdData?: number | undefined;
 }
-const StepsReportForm = ({ token }: searchStepData) => {
+const StepsReportForm = ({ token, rfpIdData }: searchStepData) => {
   const form = useForm<z.infer<typeof ReportSchema>>({
     resolver: zodResolver(ReportSchema),
     defaultValues: {
@@ -94,13 +95,15 @@ const StepsReportForm = ({ token }: searchStepData) => {
           startDate: '',
           // startDate: '2025-09-30',
           // endDate: 'yyyy-mm-dd',
-          endDate: '2025-09-03',
+          diameter: 'diameter',
+          // endDate: '',
+          endDate: '',
 
           probabilityDistribution: 'normal',
           sensitivityCoefficient: 1.0,
         },
         dataSignalConversion: {
-          noDecimalPoints: 2,
+          noDecimalPoints: undefined,
           probabilityDistribution: 'normal',
           sensitivityCoefficient: 1.0,
         },
@@ -132,13 +135,7 @@ const StepsReportForm = ({ token }: searchStepData) => {
   };
   async function onSubmit(values: z.infer<typeof ReportSchema>) {
     console.log(JSON.stringify(values));
-    const submittedData = {
-      title: 'Industrial Flow Monitoring Report - Site',
-      // coverageProbability: 0.98,
-      rfpId: 4,
-      ...values,
-    };
-    console.log(JSON.stringify(submittedData));
+    console.log({ token });
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_BASE_URL}/reports`,
@@ -146,13 +143,12 @@ const StepsReportForm = ({ token }: searchStepData) => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`, // تأكد إن token متعرف هنا
+            Authorization: `Bearer ${token}`,
           },
           credentials: 'include',
           body: JSON.stringify({
-            title: 'Industrial Flow Monitoring Report - Site',
-
-            rfpId: 4,
+            title: 'Report',
+            rfpId: rfpIdData,
             ...values,
           }),
         }
@@ -249,7 +245,7 @@ const StepsReportForm = ({ token }: searchStepData) => {
                   </Button>
                   {currentStep === steps.length ? (
                     <Button
-                      type="button" // ⚠️ مهم جداً
+                      type="button"
                       onClick={form.handleSubmit(onSubmit)}
                       variant="default"
                       className="bg-blue-600 rounded text-base duration-150 hover:bg-blue-600/75"
@@ -266,14 +262,6 @@ const StepsReportForm = ({ token }: searchStepData) => {
                       Next Step
                     </Button>
                   )}
-                  {/* <Button
-                    onClick={nextStep}
-                    disabled={currentStep === steps.length}
-                    variant="default"
-                    className="bg-green-500  rounded text-base duration-150 hover:bg-green-500/75 "
-                  >
-                    Next Step
-                  </Button> */}
                 </div>
               </form>
             </Form>

@@ -33,14 +33,18 @@ interface Props {
   data: Rfp[];
   onSelect?: (item: Rfp | null) => void;
   setShowStepsForm: React.Dispatch<React.SetStateAction<boolean>>;
+  setRfpIdData:React.Dispatch<React.SetStateAction<number|undefined>>
+
 }
 
-export function FlowMeterSearch({ data, onSelect, setShowStepsForm }: Props) {
+export function FlowMeterSearch({ data, onSelect, setShowStepsForm,setRfpIdData }: Props) {
   console.log('from search', data);
   const [open, setOpen] = React.useState(false);
   const [selected, setSelected] = React.useState<Rfp | null>(null);
 
   const handleSelect = (item: Rfp) => {
+    console.log({item})
+    setRfpIdData(item.id)
     setSelected(item);
     onSelect?.(item);
     setOpen(false);
