@@ -30,7 +30,7 @@ const StepFour = ({ form }: StepfourProps) => {
           </Label>
           <FormField
             control={form.control}
-            name="In Situ Flow comparison.flow reference standard"
+            name="inSituFlowComparison.flowReferenceStandard"
             render={({ field }) => (
               <FormItem className="col-span-1">
                 <FormControl>
@@ -41,7 +41,7 @@ const StepFour = ({ form }: StepfourProps) => {
           />
           <FormField
             control={form.control}
-            name="In Situ Flow comparison.probability distribution"
+            name="inSituFlowComparison.probabilityDistribution"
             render={({ field }) => (
               <FormItem className="col-span-1  w-full">
                 <FormControl>
@@ -63,7 +63,7 @@ const StepFour = ({ form }: StepfourProps) => {
           />
           <FormField
             control={form.control}
-            name="In Situ Flow comparison.sensitivity coefficient"
+            name="inSituFlowComparison.sensitivityCoefficient"
             render={({ field }) => (
               <FormItem className="col-span-1">
                 <FormControl>

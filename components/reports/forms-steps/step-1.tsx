@@ -36,7 +36,7 @@ const StepOne = ({ form }: StepOneProps) => {
 
           <FormField
             control={form.control}
-            name="Primary Metering Device.specified uncertainty from manufacturer.relative uncertainty"
+            name="primaryMeteringDevice.specifiedUncertainty.relativeUncertainty"
             render={({ field }) => (
               <FormItem className="col-span-1">
                 <FormControl>
@@ -48,7 +48,7 @@ const StepOne = ({ form }: StepOneProps) => {
           />
           <FormField
             control={form.control}
-            name="Primary Metering Device.specified uncertainty from manufacturer.probability distribution"
+            name="primaryMeteringDevice.specifiedUncertainty.probabilityDistribution"
             render={({ field }) => (
               <FormItem className="col-span-1">
                 <FormControl>
@@ -71,7 +71,7 @@ const StepOne = ({ form }: StepOneProps) => {
           />
           <FormField
             control={form.control}
-            name="Primary Metering Device.specified uncertainty from manufacturer.sensitivity coefficient"
+            name="primaryMeteringDevice.specifiedUncertainty.sensitivityCoefficient"
             render={({ field }) => (
               <FormItem className="col-span-1">
                 <FormControl>
@@ -88,7 +88,7 @@ const StepOne = ({ form }: StepOneProps) => {
           <Label className="col-span-1">Installation Effect:</Label>
           <FormField
             control={form.control}
-            name="Primary Metering Device.installation effects.effects_relative_uncertainty_list"
+            name="primaryMeteringDevice.installationEffects.effectsRelativeUncertaintyList"
             render={({ field }) => (
               <FormItem className="col-span-1">
                 <FormControl>
@@ -111,7 +111,7 @@ const StepOne = ({ form }: StepOneProps) => {
           />
           <FormField
             control={form.control}
-            name="Primary Metering Device.installation effects.probability distribution"
+            name="primaryMeteringDevice.installationEffects.probabilityDistribution"
             render={({ field }) => (
               <FormItem className="col-span-1">
                 <FormControl>
@@ -133,7 +133,7 @@ const StepOne = ({ form }: StepOneProps) => {
           />
           <FormField
             control={form.control}
-            name="Primary Metering Device.installation effects.probability distribution"
+            name="primaryMeteringDevice.installationEffects.probabilityDistribution"
             render={({ field }) => (
               <FormItem className="col-span-1">
                 <FormControl>
@@ -150,7 +150,7 @@ const StepOne = ({ form }: StepOneProps) => {
           <Label className="col-span-1">Hydraulic Effects:</Label>
           <FormField
             control={form.control}
-            name="Primary Metering Device.hydraulic effect.effects_relative_uncertainty_list"
+            name="primaryMeteringDevice.hydraulicEffect.effectsRelativeUncertaintyList"
             render={({ field }) => (
               <FormItem className="col-span-1">
                 <FormControl>
@@ -172,7 +172,7 @@ const StepOne = ({ form }: StepOneProps) => {
           />
           <FormField
             control={form.control}
-            name="Primary Metering Device.hydraulic effect.probability distribution"
+            name="primaryMeteringDevice.hydraulicEffect.probabilityDistribution"
             render={({ field }) => (
               <FormItem className="col-span-1">
                 <FormControl>
@@ -194,7 +194,7 @@ const StepOne = ({ form }: StepOneProps) => {
           />
           <FormField
             control={form.control}
-            name="Primary Metering Device.installation effects.sensitivity coefficient"
+            name="primaryMeteringDevice.installationEffects.sensitivityCoefficient"
             render={({ field }) => (
               <FormItem className="col-span-1">
                 <FormControl>
@@ -211,7 +211,7 @@ const StepOne = ({ form }: StepOneProps) => {
           <Label className="col-span-1">Unsteady Flow:</Label>
           <FormField
             control={form.control}
-            name="Primary Metering Device.unsteady flow.relative uncertainty"
+            name="primaryMeteringDevice.unsteadyFlow.relativeUncertainty"
             render={({ field }) => (
               <FormItem className="col-span-1">
                 <FormControl>
@@ -224,7 +224,7 @@ const StepOne = ({ form }: StepOneProps) => {
 
           <FormField
             control={form.control}
-            name="Primary Metering Device.unsteady flow.probability distribution"
+            name="primaryMeteringDevice.unsteadyFlow.probabilityDistribution"
             render={({ field }) => (
               <FormItem className="col-span-1">
                 <FormControl>
@@ -247,7 +247,7 @@ const StepOne = ({ form }: StepOneProps) => {
 
           <FormField
             control={form.control}
-            name="Primary Metering Device.unsteady flow.sensitivity coefficient"
+            name="primaryMeteringDevice.unsteadyFlow.sensitivityCoefficient"
             render={({ field }) => (
               <FormItem className="col-span-1">
                 <FormControl>
@@ -265,7 +265,7 @@ const StepOne = ({ form }: StepOneProps) => {
           </Label>
           <FormField
             control={form.control}
-            name="Primary Metering Device.env temperature effect.opert_temperature_c"
+            name="primaryMeteringDevice.envTemperatureEffect.opertTemperatureC"
             render={({ field }) => (
               <FormItem className="col-span-1">
                 <FormControl>
@@ -281,7 +281,7 @@ const StepOne = ({ form }: StepOneProps) => {
         <div className="grid grid-cols-4 gap-4">
           <FormField
             control={form.control}
-            name="Primary Metering Device.env temperature effect.uncert_temperature_c"
+            name="primaryMeteringDevice.envTemperatureEffect.uncertTemperatureC"
             render={({ field }) => (
               <FormItem className="col-span-1 col-start-2">
                 <FormControl>
@@ -292,7 +292,7 @@ const StepOne = ({ form }: StepOneProps) => {
           />
           <FormField
             control={form.control}
-            name="Primary Metering Device.env temperature effect.probability distribution"
+            name="primaryMeteringDevice.envTemperatureEffect.probabilityDistribution"
             render={({ field }) => (
               <FormItem className="col-start-3">
                 <FormControl>
@@ -314,7 +314,7 @@ const StepOne = ({ form }: StepOneProps) => {
           />
           <FormField
             control={form.control}
-            name="Primary Metering Device.env temperature effect.sensitivity coefficient"
+            name="primaryMeteringDevice.envTemperatureEffect.sensitivityCoefficient"
             render={({ field }) => (
               <FormItem className="col-span-1 col-start-4">
                 <FormControl>

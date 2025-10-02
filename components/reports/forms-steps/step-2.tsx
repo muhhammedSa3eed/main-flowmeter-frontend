@@ -45,7 +45,7 @@ const StepTwo = ({ form }: StepTwoProps) => {
 
   const { fields } = useFieldArray({
     control,
-    name: 'Secondary Metering Device.signal conversion.test samples',
+    name: 'secondaryMeteringDevice.signalConversion.testSamples',
   });
 
   return (
@@ -62,7 +62,7 @@ const StepTwo = ({ form }: StepTwoProps) => {
 
           <FormField
             control={form.control}
-            name="Secondary Metering Device.electronic instrumentation.relative uncertainty"
+            name="secondaryMeteringDevice.electronicInstrumentation.relativeUncertainty"
             render={({ field }) => (
               <FormItem className="col-span-1">
                 <FormControl>
@@ -74,7 +74,7 @@ const StepTwo = ({ form }: StepTwoProps) => {
           />
           <FormField
             control={form.control}
-            name="Secondary Metering Device.electronic instrumentation.probability distribution"
+            name="secondaryMeteringDevice.electronicInstrumentation.probabilityDistribution"
             render={({ field }) => (
               <FormItem className="col-span-1">
                 <FormControl>
@@ -97,7 +97,7 @@ const StepTwo = ({ form }: StepTwoProps) => {
           />
           <FormField
             control={form.control}
-            name="Secondary Metering Device.electronic instrumentation.sensitivity coefficient"
+            name="secondaryMeteringDevice.electronicInstrumentation.sensitivityCoefficient"
             render={({ field }) => (
               <FormItem className="col-span-1">
                 <FormControl>
@@ -115,7 +115,7 @@ const StepTwo = ({ form }: StepTwoProps) => {
           </Label>
           <FormField
             control={form.control}
-            name="Secondary Metering Device.display resolution.no decimal points"
+            name="secondaryMeteringDevice.displayResolution.noDecimalPoints"
             render={({ field }) => (
               <FormItem className="col-span-1">
                 <FormControl>
@@ -126,7 +126,7 @@ const StepTwo = ({ form }: StepTwoProps) => {
           />
           <FormField
             control={form.control}
-            name="Secondary Metering Device.display resolution.probability distribution"
+            name="secondaryMeteringDevice.displayResolution.probabilityDistribution"
             render={({ field }) => (
               <FormItem className="col-span-1  w-full">
                 <FormControl>
@@ -148,7 +148,7 @@ const StepTwo = ({ form }: StepTwoProps) => {
           />
           <FormField
             control={form.control}
-            name="Secondary Metering Device.display resolution.sensitivity coefficient"
+            name="secondaryMeteringDevice.displayResolution.sensitivityCoefficient"
             render={({ field }) => (
               <FormItem className="col-span-1">
                 <FormControl>
@@ -164,11 +164,11 @@ const StepTwo = ({ form }: StepTwoProps) => {
             Signal Conversion:
           </Label>
 
-          <Button onClick={() => setOpen(true)}>Analyze</Button>
+          <Button onClick={() => setOpen(true)} type='button'>Analyze</Button>
 
           <FormField
             control={form.control}
-            name="Secondary Metering Device.signal conversion.probability distribution"
+            name="secondaryMeteringDevice.signalConversion.probabilityDistribution"
             render={({ field }) => (
               <FormItem className="col-span-1  w-full">
                 <FormControl>
@@ -190,7 +190,7 @@ const StepTwo = ({ form }: StepTwoProps) => {
           />
           <FormField
             control={form.control}
-            name="Secondary Metering Device.signal conversion.sensitivity coefficient"
+            name="secondaryMeteringDevice.signalConversion.sensitivityCoefficient"
             render={({ field }) => (
               <FormItem className="col-span-1">
                 <FormControl>
@@ -218,7 +218,7 @@ const StepTwo = ({ form }: StepTwoProps) => {
               </Label>
               <FormField
                 control={form.control}
-                name="Secondary Metering Device.signal conversion.full flow scale"
+                name="secondaryMeteringDevice.signalConversion.fullFlowScale"
                 render={({ field }) => (
                   <FormItem className="col-span-1">
                     <FormControl>
@@ -236,7 +236,7 @@ const StepTwo = ({ form }: StepTwoProps) => {
                 </Label>
                 <FormField
                   control={form.control}
-                  name="Secondary Metering Device.signal conversion.min current output"
+                  name="secondaryMeteringDevice.signalConversion.minCurrentOutput"
                   render={({ field }) => (
                     <FormItem className="w-full">
                       <FormControl>
@@ -252,7 +252,7 @@ const StepTwo = ({ form }: StepTwoProps) => {
                 </Label>
                 <FormField
                   control={form.control}
-                  name="Secondary Metering Device.signal conversion.max current output"
+                  name="secondaryMeteringDevice.signalConversion.maxCurrentOutput"
                   render={({ field }) => (
                     <FormItem className="w-full">
                       <FormControl>
@@ -271,7 +271,7 @@ const StepTwo = ({ form }: StepTwoProps) => {
                 </Label>
                 <FormField
                   control={form.control}
-                  name="Secondary Metering Device.signal conversion.repeatability error"
+                  name="secondaryMeteringDevice.signalConversion.repeatabilityError"
                   render={({ field }) => (
                     <FormItem className="w-full">
                       <FormControl>
@@ -285,7 +285,7 @@ const StepTwo = ({ form }: StepTwoProps) => {
                 <Label className="my-2 text-sm">Meter Accurcy (%)</Label>
                 <FormField
                   control={form.control}
-                  name="Secondary Metering Device.signal conversion.meter accuracy"
+                  name="secondaryMeteringDevice.signalConversion.meterAccuracy"
                   render={({ field }) => (
                     <FormItem className="w-full">
                       <FormControl>
@@ -321,7 +321,7 @@ const StepTwo = ({ form }: StepTwoProps) => {
                       type="number"
                       step="any"
                       {...form.register(
-                        `Secondary Metering Device.signal conversion.test samples.${index}.0` as const,
+                        `secondaryMeteringDevice.signalConversion.testSamples.${index}.0` as const,
                         { valueAsNumber: true }
                       )}
                     />
@@ -331,41 +331,28 @@ const StepTwo = ({ form }: StepTwoProps) => {
                       type="number"
                       step="any"
                       {...form.register(
-                        `Secondary Metering Device.signal conversion.test samples.${index}.1` as const,
+                        `secondaryMeteringDevice.signalConversion.testSamples.${index}.1` as const,
                         { valueAsNumber: true }
                       )}
                     />
                   </TableCell>
                 </TableRow>
 
-                // <TableRow key={field.id}>
-                //   <TableCell className="font-medium">
-                //     Sample {index + 1}
-                //   </TableCell>
-                //   <TableCell>
-                //     <Input
-                //       type="number"
-                //       step="any"
-                //       {...form.register(
-                //         `Secondary Metering Device.signal conversion.test samples.${index}.0` as const,
-                //         { valueAsNumber: true }
-                //       )}
-                //     />
-                //   </TableCell>
-                //   <TableCell>
-                //     <Input
-                //       type="number"
-                //       step="any"
-                //       {...form.register(
-                //         `Secondary Metering Device.signal conversion.test samples.${index}.1` as const,
-                //         { valueAsNumber: true }
-                //       )}
-                //     />
-                //   </TableCell>
-                // </TableRow>
+                
               ))}
             </TableBody>
-            {/* <TableBody>
+            
+          </Table>
+        </SheetContent>
+      </Sheet>
+    </div>
+  );
+};
+
+export default StepTwo;
+
+{
+  {/* <TableBody>
               <TableRow>
                 <TableCell className="font-medium">Sample 1</TableCell>
                 <TableCell>
@@ -394,16 +381,31 @@ const StepTwo = ({ form }: StepTwoProps) => {
                 </TableCell>
               </TableRow>
             </TableBody> */}
-          </Table>
-        </SheetContent>
-      </Sheet>
-    </div>
-  );
-};
-
-export default StepTwo;
-
-{
+  // <TableRow key={field.id}>
+                //   <TableCell className="font-medium">
+                //     Sample {index + 1}
+                //   </TableCell>
+                //   <TableCell>
+                //     <Input
+                //       type="number"
+                //       step="any"
+                //       {...form.register(
+                //         `Secondary Metering Device.signal conversion.test samples.${index}.0` as const,
+                //         { valueAsNumber: true }
+                //       )}
+                //     />
+                //   </TableCell>
+                //   <TableCell>
+                //     <Input
+                //       type="number"
+                //       step="any"
+                //       {...form.register(
+                //         `Secondary Metering Device.signal conversion.test samples.${index}.1` as const,
+                //         { valueAsNumber: true }
+                //       )}
+                //     />
+                //   </TableCell>
+                // </TableRow>
   /* <CardContent className="space-y-6 mt-4">
          
           <div className="grid grid-cols-4 items-center gap-4">

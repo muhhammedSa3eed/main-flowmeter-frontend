@@ -23,7 +23,7 @@ const StepFive = ({ form }: StepFiveProps) => {
           </Label>
           <FormField
             control={form.control}
-            name="coverage probability"
+            name="coverageProbability"
             render={({ field }) => (
               <FormItem className="col-span-1">
                 <FormControl>

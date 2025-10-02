@@ -352,6 +352,16 @@ export type RFP = {
   maf: MAF;
   attachments: Attachment[];
 };
+export type report = {
+  id: string;
+  title: string;
+  coverageProbability: number;
+  createdAt: Date;
+  updatedAt: Date;
+  rfpId: number;
+  createdBy: string;
+  updatedBy: string;
+};
 
 export type RfpType = {
   label: string;

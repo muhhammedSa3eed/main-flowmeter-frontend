@@ -25,89 +25,97 @@ const steps = [
   { id: 5, label: 'Overall/ Expanded Uncertainty' },
   { id: 6, label: 'Review & Generate Report' },
 ];
-const StepsReportForm = () => {
+interface searchStepData {
+  token?: string;
+}
+const StepsReportForm = ({ token }: searchStepData) => {
   const form = useForm<z.infer<typeof ReportSchema>>({
     resolver: zodResolver(ReportSchema),
     defaultValues: {
-      'Primary Metering Device': {
-        'specified uncertainty from manufacturer': {
-          'relative uncertainty': 0.02,
-          'probability distribution': 'normal',
-          'sensitivity coefficient': 1.0,
+      primaryMeteringDevice: {
+        specifiedUncertainty: {
+          relativeUncertainty: 0.02,
+          probabilityDistribution: 'normal',
+          sensitivityCoefficient: 1.0,
         },
-        'installation effects': {
-          effects_relative_uncertainty_list: [],
-          'probability distribution': 'normal',
-          'sensitivity coefficient': 1.0,
+        installationEffects: {
+          effectsRelativeUncertaintyList: [],
+          probabilityDistribution: 'normal',
+          sensitivityCoefficient: 1.0,
         },
-        'hydraulic effect': {
-          effects_relative_uncertainty_list: [],
-          'probability distribution': 'normal',
-          'sensitivity coefficient': 1.0,
+        hydraulicEffect: {
+          effectsRelativeUncertaintyList: [],
+          probabilityDistribution: 'normal',
+          sensitivityCoefficient: 1.0,
         },
-        'unsteady flow': {
-          'relative uncertainty': 0.02,
-          'probability distribution': 'normal',
-          'sensitivity coefficient': 1.0,
+        unsteadyFlow: {
+          relativeUncertainty: 0.02,
+          probabilityDistribution: 'normal',
+          sensitivityCoefficient: 1.0,
         },
-        'env temperature effect': {
-          opert_temperature_c: 25.0,
-          uncert_temperature_c: 0.5,
-          'probability distribution': 'normal',
-          'sensitivity coefficient': 1.0,
+        envTemperatureEffect: {
+          opertTemperatureC: 25.0,
+          uncertTemperatureC: 0.5,
+          probabilityDistribution: 'normal',
+          sensitivityCoefficient: 1.0,
         },
       },
-      'Secondary Metering Device': {
-        'electronic instrumentation': {
-          'relative uncertainty': 0.02,
-          'probability distribution': 'normal',
-          'sensitivity coefficient': 1.0,
+      secondaryMeteringDevice: {
+        electronicInstrumentation: {
+          relativeUncertainty: 0.02,
+          probabilityDistribution: 'normal',
+          sensitivityCoefficient: 1.0,
         },
-        'display resolution': {
-          'no decimal points': 2,
-          'max current output': 20.0,
-          'probability distribution': 'normal',
-          'sensitivity coefficient': 1.0,
+        displayResolution: {
+          noDecimalPoints: 2,
+          maxCurrentOutput: 20.0,
+          probabilityDistribution: 'normal',
+          sensitivityCoefficient: 1.0,
         },
-        'signal conversion': {
-          'full flow scale': 5000.0,
-          'min current output': 4.0,
-          'max current output': 20.0,
-          'repeatability error': 0.001,
-          'meter accuracy': 0.015,
-          'test samples': [
+        signalConversion: {
+          fullFlowScale: 5000.0,
+          minCurrentOutput: 4.0,
+          maxCurrentOutput: 20.0,
+          repeatabilityError: 0.001,
+          meterAccuracy: 0.015,
+          testSamples: [
             [0.0, 4.0],
             [856.0, 8.72],
             [858.0, 8.72],
           ],
-          'probability distribution': 'normal',
-          'sensitivity coefficient': 1.0,
+          probabilityDistribution: 'normal',
+          sensitivityCoefficient: 1.0,
         },
       },
-      'Data Collection': {
-        'weighted error': {
-          'start date': 'yyyy-mm-dd',
-          'end date': 'yyyy-mm-dd',
-          'probability distribution': 'normal',
-          'sensitivity coefficient': 1.0,
+      // "2025-09-01"
+      // "2025-09-28"
+      dataCollection: {
+        weightedError: {
+          startDate: '',
+          // startDate: '2025-09-30',
+          // endDate: 'yyyy-mm-dd',
+          endDate: '2025-09-03',
+
+          probabilityDistribution: 'normal',
+          sensitivityCoefficient: 1.0,
         },
-        'data signal conversion': {
-          'no decimal points': 2,
-          'probability distribution': 'normal',
-          'sensitivity coefficient': 1.0,
+        dataSignalConversion: {
+          noDecimalPoints: 2,
+          probabilityDistribution: 'normal',
+          sensitivityCoefficient: 1.0,
         },
-        'estimates for missing data': {
-          'relative uncertainty': 0.02,
-          'probability distribution': 'normal',
-          'sensitivity coefficient': 1.0,
+        estimatesForMissingData: {
+          relativeUncertainty: 0.02,
+          probabilityDistribution: 'normal',
+          sensitivityCoefficient: 1.0,
         },
       },
-      'In Situ Flow comparison': {
-        'flow reference standard': 0.0,
-        'probability distribution': 'normal',
-        'sensitivity coefficient': 1.0,
+      inSituFlowComparison: {
+        flowReferenceStandard: 0.0,
+        probabilityDistribution: 'normal',
+        sensitivityCoefficient: 1.0,
       },
-      'coverage probability': 0.95,
+      coverageProbability: 0.95,
     },
   });
   const [currentStep, setCurrentStep] = useState(1);
@@ -122,9 +130,80 @@ const StepsReportForm = () => {
       setCurrentStep((prev) => prev - 1);
     }
   };
-  function onSubmit(values: z.infer<typeof ReportSchema>) {
-    console.log('Form Submitted:', JSON.stringify(values));
+  async function onSubmit(values: z.infer<typeof ReportSchema>) {
+    console.log(JSON.stringify(values));
+    const submittedData = {
+      title: 'Industrial Flow Monitoring Report - Site',
+      // coverageProbability: 0.98,
+      rfpId: 4,
+      ...values,
+    };
+    console.log(JSON.stringify(submittedData));
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/reports`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`, // تأكد إن token متعرف هنا
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            title: 'Industrial Flow Monitoring Report - Site',
+
+            rfpId: 4,
+            ...values,
+          }),
+        }
+      );
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(errorText || 'Failed to submit report');
+      }
+
+      const data = await res.json();
+
+      console.log('Report created successfully:', data);
+
+      return data;
+    } catch (error) {
+      console.error('Error submitting report:', error);
+    }
   }
+  // async function onSubmit(values: z.infer<typeof ReportSchema>) {
+  //   console.log('Form Submitted:', JSON.stringify(values));
+  //   try {
+  //     const res = await fetch(
+  //       `${process.env.NEXT_PUBLIC_API_BASE_URL}/reports`,
+  //       {
+  //         method: 'POST',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //         credentials: 'include',
+
+  //         body: JSON.stringify({
+  //           ...values,
+  //           title: 'Industrial Flow Monitoring Report - Site',
+  //           coverageProbability: 0.98,
+  //           rfpId: 4,
+  //         }),
+  //       }
+  //     );
+
+  //     if (!res.ok) {
+  //       throw new Error('Failed to submit report');
+  //     }
+
+  //     const data = await res.json();
+  //     console.log('Report created successfully:', data);
+  //   } catch (error) {
+  //     console.error('Error submitting report:', error);
+  //   }
+  // }
   return (
     <div className="grid grid-cols-1 md:grid-cols-5 lg:grid-cols-6  p-4 h-[calc(100vh-210px)]">
       <Stepper
@@ -147,7 +226,7 @@ const StepsReportForm = () => {
             </div>
             <Form {...form}>
               <form
-                onSubmit={form.handleSubmit(onSubmit)}
+                // onSubmit={form.handleSubmit(onSubmit)}
                 className="space-y-6"
               >
                 {currentStep == 1 && <StepOne form={form} />}
@@ -160,6 +239,7 @@ const StepsReportForm = () => {
                 <div className="flex gap-2 justify-between px-6">
                   <Button
                     onClick={prevStep}
+                    type="button"
                     disabled={currentStep === 1}
                     className={`bg-gray-500 text-gray-100 ${
                       currentStep === 1 && 'bg-muted text-gray-400'
@@ -169,7 +249,8 @@ const StepsReportForm = () => {
                   </Button>
                   {currentStep === steps.length ? (
                     <Button
-                      type="submit"
+                      type="button" // ⚠️ مهم جداً
+                      onClick={form.handleSubmit(onSubmit)}
                       variant="default"
                       className="bg-blue-600 rounded text-base duration-150 hover:bg-blue-600/75"
                     >

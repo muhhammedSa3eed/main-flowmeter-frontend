@@ -352,44 +352,84 @@ export const VerifyOtpSchema = z.object({
   email: z.string().email('Please enter a valid email address.'),
   otp: z.string().min(1, { message: 'otp is required' }),
 });
-
 export const UncertaintySchema = z.object({
-  'relative uncertainty': z.number().optional(),
-  effects_relative_uncertainty_list: z.array(z.any()).optional(),
-  opert_temperature_c: z.number().optional(),
-  uncert_temperature_c: z.number().optional(),
-  'no decimal points': z.number().optional(),
-  'max current output': z.number().optional(),
-  'full flow scale': z.number().optional(),
-  'min current output': z.number().optional(),
-  'repeatability error': z.number().optional(),
-  'meter accuracy': z.number().optional(),
-  'test samples': z.array(z.tuple([z.number(), z.number()])).optional(),
-  'start date': z.string().optional(),
-  'end date': z.string().optional(),
-  'flow reference standard': z.number().optional(),
-  'probability distribution': z.string(),
-  'sensitivity coefficient': z.number(),
+  relativeUncertainty: z.number().optional(),
+  effectsRelativeUncertaintyList: z.array(z.any()).optional(),
+  opertTemperatureC: z.number().optional(),
+  uncertTemperatureC: z.number().optional(),
+  noDecimalPoints: z.number().optional(),
+  maxCurrentOutput: z.number().optional(),
+  fullFlowScale: z.number().optional(),
+  minCurrentOutput: z.number().optional(),
+  repeatabilityError: z.number().optional(),
+  meterAccuracy: z.number().optional(),
+  testSamples: z.array(z.tuple([z.number(), z.number()])).optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+  flowReferenceStandard: z.number().optional(),
+  probabilityDistribution: z.string(),
+  sensitivityCoefficient: z.number(),
 });
 
 export const ReportSchema = z.object({
-  'Primary Metering Device': z.object({
-    'specified uncertainty from manufacturer': UncertaintySchema,
-    'installation effects': UncertaintySchema,
-    'hydraulic effect': UncertaintySchema,
-    'unsteady flow': UncertaintySchema,
-    'env temperature effect': UncertaintySchema,
+  primaryMeteringDevice: z.object({
+    specifiedUncertainty: UncertaintySchema,
+    installationEffects: UncertaintySchema,
+    hydraulicEffect: UncertaintySchema,
+    unsteadyFlow: UncertaintySchema,
+    envTemperatureEffect: UncertaintySchema,
   }),
-  'Secondary Metering Device': z.object({
-    'electronic instrumentation': UncertaintySchema,
-    'display resolution': UncertaintySchema,
-    'signal conversion': UncertaintySchema,
+  secondaryMeteringDevice: z.object({
+    electronicInstrumentation: UncertaintySchema,
+    displayResolution: UncertaintySchema,
+    signalConversion: UncertaintySchema,
   }),
-  'Data Collection': z.object({
-    'weighted error': UncertaintySchema,
-    'data signal conversion': UncertaintySchema,
-    'estimates for missing data': UncertaintySchema,
+  dataCollection: z.object({
+    weightedError: UncertaintySchema,
+    dataSignalConversion: UncertaintySchema,
+    estimatesForMissingData: UncertaintySchema,
   }),
-  'In Situ Flow comparison': UncertaintySchema,
-  'coverage probability': z.number(),
+  inSituFlowComparison: UncertaintySchema,
+  coverageProbability: z.number().optional(),
 });
+
+// export const UncertaintySchema = z.object({
+//   'relativeUncertainty': z.number().optional(),
+//   effectsRelativeUncertaintyList: z.array(z.any()).optional(),
+//   opertTemperatureC: z.number().optional(),
+//   uncertTemperatureC: z.number().optional(),
+//   'noDecimalPoints': z.number().optional(),
+//   'maxCurrentOutput': z.number().optional(),
+//   'full flow scale': z.number().optional(),
+//   'min current output': z.number().optional(),
+//   'repeatability error': z.number().optional(),
+//   'meter accuracy': z.number().optional(),
+//   'test samples': z.array(z.tuple([z.number(), z.number()])).optional(),
+//   'start date': z.string().optional(),
+//   'end date': z.string().optional(),
+//   'flow reference standard': z.number().optional(),
+//   'probabilityDistribution': z.string(),
+//   'sensitivityCoefficient': z.number(),
+// });
+
+// export const ReportSchema = z.object({
+//   'primaryMeteringDevice': z.object({
+//     'specifiedUncertainty': UncertaintySchema,
+//     'installation effects': UncertaintySchema,
+//     'hydraulic effect': UncertaintySchema,
+//     'unsteady flow': UncertaintySchema,
+//     'env temperature effect': UncertaintySchema,
+//   }),
+//   'secondaryMeteringDevice': z.object({
+//     'electronic instrumentation': UncertaintySchema,
+//     'display resolution': UncertaintySchema,
+//     'signal conversion': UncertaintySchema,
+//   }),
+//   'dataCollection': z.object({
+//     'weighted error': UncertaintySchema,
+//     'data signal conversion': UncertaintySchema,
+//     'estimates for missing data': UncertaintySchema,
+//   }),
+//   'inSituFlowComparison': UncertaintySchema,
+//   'coverageProbability': z.number(),
+// });

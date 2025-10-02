@@ -45,7 +45,7 @@ const StepThree = ({ form }: StepThreeProps) => {
 
           <FormField
             control={form.control}
-            name="Data Collection.weighted error.start date"
+            name="dataCollection.weightedError.startDate"
             render={({ field }) => {
               const parsed = field.value ? parseISO(field.value) : undefined;
               const selectedDate =
@@ -98,7 +98,7 @@ const StepThree = ({ form }: StepThreeProps) => {
           />
           <FormField
             control={form.control}
-            name="Data Collection.weighted error.probability distribution"
+            name="dataCollection.weightedError.probabilityDistribution"
             render={({ field }) => (
               <FormItem className="col-span-1">
                 <FormControl>
@@ -121,7 +121,7 @@ const StepThree = ({ form }: StepThreeProps) => {
           />
           <FormField
             control={form.control}
-            name="Data Collection.weighted error.sensitivity coefficient"
+            name="dataCollection.weightedError.sensitivityCoefficient"
             render={({ field }) => (
               <FormItem className="col-span-1">
                 <FormControl>
@@ -139,7 +139,7 @@ const StepThree = ({ form }: StepThreeProps) => {
           </Label>
           <FormField
             control={form.control}
-            name="Data Collection.data signal conversion.no decimal points"
+            name="dataCollection.dataSignalConversion.noDecimalPoints"
             render={({ field }) => (
               <FormItem className="col-span-1">
                 <FormControl>
@@ -150,7 +150,7 @@ const StepThree = ({ form }: StepThreeProps) => {
           />
           <FormField
             control={form.control}
-            name="Data Collection.data signal conversion.probability distribution"
+            name="dataCollection.dataSignalConversion.probabilityDistribution"
             render={({ field }) => (
               <FormItem className="col-span-1  w-full">
                 <FormControl>
@@ -172,7 +172,7 @@ const StepThree = ({ form }: StepThreeProps) => {
           />
           <FormField
             control={form.control}
-            name="Data Collection.data signal conversion.sensitivity coefficient"
+            name="dataCollection.dataSignalConversion.sensitivityCoefficient"
             render={({ field }) => (
               <FormItem className="col-span-1">
                 <FormControl>
@@ -189,7 +189,7 @@ const StepThree = ({ form }: StepThreeProps) => {
           </Label>
           <FormField
             control={form.control}
-            name="Data Collection.estimates for missing data.relative uncertainty"
+            name="dataCollection.estimatesForMissingData.relativeUncertainty"
             render={({ field }) => (
               <FormItem className="col-span-1">
                 <FormControl>
@@ -200,7 +200,7 @@ const StepThree = ({ form }: StepThreeProps) => {
           />
           <FormField
             control={form.control}
-            name="Data Collection.estimates for missing data.probability distribution"
+            name="dataCollection.estimatesForMissingData.probabilityDistribution"
             render={({ field }) => (
               <FormItem className="col-span-1  w-full">
                 <FormControl>
@@ -222,7 +222,7 @@ const StepThree = ({ form }: StepThreeProps) => {
           />
           <FormField
             control={form.control}
-            name="Data Collection.estimates for missing data.sensitivity coefficient"
+            name="dataCollection.estimatesForMissingData.sensitivityCoefficient"
             render={({ field }) => (
               <FormItem className="col-span-1">
                 <FormControl>
@@ -242,7 +242,7 @@ export default StepThree;
 {
   /* <FormField
             control={form.control}
-            name="Data Collection.weighted error.start date"
+            name="Data Collection.weightedError.start date"
             render={({ field }) => (
               <FormItem className="w-full">
                 <Popover>
