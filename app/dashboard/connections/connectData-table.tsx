@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { useState, useEffect, useId, useRef } from "react";
+import { useState, useEffect, useId, useRef, useLayoutEffect } from "react";
 import {
   ColumnFiltersState,
   SortingState,
@@ -55,6 +55,28 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { DialogTitle } from "@/components/ui/dialog";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerTrigger,
+  DrawerFooter,
+} from "@/components/ui/drawer";
+import { GripVertical, X, Save } from "lucide-react";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  verticalListSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { DeviceDB, SelectPolling, SelectType } from "@/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -82,7 +104,7 @@ import Link from "next/link";
 interface DataTableProps<TData, TValue> {
   columns: any;
   data: DeviceDB[];
-  preferences:any
+  preferences: any;
   selectType: SelectType[];
   selectPolling: SelectPolling[];
 }
@@ -117,11 +139,23 @@ export default function ConnectDataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
   const tableName = "ConnectionsTable";
   const id = useId();
- 
+
   const [open, setOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const [globalFilter, setGlobalFilter] = useState<any>([]);
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [sorting, setSorting] = useState<SortingState>(() => {
+    try {
+      if (preferences && (preferences as any).sorting) {
+        return (preferences as any).sorting as SortingState;
+      }
+      const raw = localStorage.getItem(`${tableName}-sorting`);
+      if (raw) return JSON.parse(raw) as SortingState;
+    } catch (e) {
+      // ignore
+    }
+    return [];
+  });
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -135,6 +169,46 @@ export default function ConnectDataTable<TData, TValue>({
   const [tempColumnVisibility, setTempColumnVisibility] = useState(
     preferences || {}
   );
+  const [tempColumnOrder, setTempColumnOrder] = useState<string[]>(
+    (preferences && (preferences.order as string[])) || []
+  );
+  const [prefsLoaded, setPrefsLoaded] = useState(false);
+  const sensors = useSensors(useSensor(PointerSensor));
+
+  // Load preferences from server (if any) and apply to temp state
+  useEffect(() => {
+    const fetchPreferences = async () => {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/get/preferences/${tableName}`,
+          { method: "GET", credentials: "include" }
+        );
+        if (!res.ok) throw new Error("Failed to fetch preferences");
+        const json = await res.json();
+        if (json.preferences) {
+          const prefs = json.preferences;
+          if (prefs.visibility) {
+            setColumnVisibility(prefs.visibility);
+            setTempColumnVisibility(prefs.visibility);
+          } else {
+            setColumnVisibility(prefs);
+            setTempColumnVisibility(prefs);
+          }
+          if (prefs.order) {
+            const filtered = (prefs.order as string[]).filter(
+              (id) => id !== "select" && id !== "actions"
+            );
+            setTempColumnOrder(filtered);
+          }
+          if (prefs.sorting) setSorting(prefs.sorting as SortingState);
+          setPrefsLoaded(true);
+        }
+      } catch (error) {
+        console.error(" Error loading preferences:", error);
+      }
+    };
+    fetchPreferences();
+  }, [tableName]);
   const handleDeleteRows = async () => {
     const selectedIds = table
       .getSelectedRowModel()
@@ -192,11 +266,108 @@ export default function ConnectDataTable<TData, TValue>({
     onColumnVisibilityChange: setColumnVisibility,
     onGlobalFilterChange: setGlobalFilter,
   });
+
+  // Persist sorting locally so reloads keep the current sort as a fallback
+  useEffect(() => {
+    try {
+      localStorage.setItem(`${tableName}-sorting`, JSON.stringify(sorting));
+    } catch (e) {
+      // ignore
+    }
+  }, [sorting, tableName]);
+
+  // waitForApply/applied logic to avoid flash of initial/default sorting
+  const waitForApply = true;
+  const [applied, setApplied] = useState<boolean>(!waitForApply);
+  useLayoutEffect(() => {
+    if (waitForApply) setApplied(true);
+  }, [waitForApply]);
+
+  // determine readiness to render (prefs loaded, saved sorting exists, or data array present)
+  const readyToRender =
+    prefsLoaded || (sorting && sorting.length > 0) || Array.isArray(dataTable);
+
+  function SortableItem({
+    id,
+    children,
+  }: {
+    id: string;
+    children: React.ReactNode;
+  }) {
+    const { attributes, listeners, setNodeRef, transform, transition } =
+      useSortable({ id });
+
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+      touchAction: "none",
+    } as React.CSSProperties;
+
+    return (
+      <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+        {children}
+      </div>
+    );
+  }
+
+  // initialize column order from table if not provided by preferences
+  const allColumnCount = table.getAllColumns().length;
+
+  useEffect(() => {
+    try {
+      const ids = table
+        .getAllColumns()
+        .map((c) => c.id)
+        .filter((id) => id !== "select" && id !== "actions");
+      if (!tempColumnOrder || tempColumnOrder.length === 0) {
+        setTempColumnOrder(ids);
+      } else {
+        // ensure order contains all current columns (append any new ones)
+        const missing = ids.filter((id) => !tempColumnOrder.includes(id));
+        if (missing.length) setTempColumnOrder((prev) => [...prev, ...missing]);
+      }
+    } catch (e) {
+      // table may not be ready yet
+    }
+  }, [allColumnCount, tempColumnOrder, table]);
+
+  // When preferences are loaded initially, apply saved order to the table once
+  useEffect(() => {
+    if (!prefsLoaded) return;
+    try {
+      const existing = table.getAllColumns().map((c) => c.id);
+      let orderToApply = tempColumnOrder.filter((id) => existing.includes(id));
+      if (existing.includes("select")) {
+        orderToApply = [
+          "select",
+          ...orderToApply.filter((id) => id !== "select"),
+        ];
+      }
+      if (orderToApply.length) table.setColumnOrder(orderToApply);
+    } catch (e) {
+      // ignore
+    }
+    // only run once after prefsLoaded flips to true
+  }, [prefsLoaded, tempColumnOrder, table]);
   // console.log("table.getColumn('name')", table.getColumn('name'));
   // console.log(
   //   "table.getColumn('name')?.getFilterValue()",
   //   table.getColumn('name')?.getFilterValue()
   // );
+
+  // If preferences haven't loaded and we don't yet have sorting/data, show a skeleton like PermissionsTable
+  if (!readyToRender || !applied) {
+    return (
+      <div className="bg-background overflow-hidden rounded-md border p-8">
+        <div className="animate-pulse">
+          <div className="h-6 bg-slate-200 rounded w-1/3 mb-4" />
+          <div className="h-4 bg-slate-100 rounded w-full mb-2" />
+          <div className="h-4 bg-slate-100 rounded w-full mb-2" />
+          <div className="h-4 bg-slate-100 rounded w-3/4" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -209,126 +380,471 @@ export default function ConnectDataTable<TData, TValue>({
             onChange={(event) => setGlobalFilter(event.target.value)}
             className={cn("peer min-w-auto ps-9")}
           />
-          {/* Toggle columns visibility */}
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="outline" className="border-green-500">
-                <Columns3Icon className="-ms-1 opacity-60" size={16} />
-                View
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-72 sm:w-96">
-              <SheetHeader>
-                <SheetTitle>All Columns</SheetTitle>
-                <SheetDescription>
-                  Choose to Hide or Show Colmuns
-                </SheetDescription>
-              </SheetHeader>
-              <ScrollArea className="h-[80vh] text-green-500 p-2 ">
-                <Button
-                  size="custom"
-                  className={cn(
-                    "mb-4 w-full mt-4 p-2",
-                    Object.values(tempColumnVisibility).every(Boolean)
-                      ? "bg-green-500 text-white hover:bg-green-600"
-                      : " border-green-500 hover:bg-gray-500"
-                  )}
-                  onClick={() => {
-                    const allVisible =
-                      Object.values(tempColumnVisibility).every(Boolean);
-                    const newVisibility = table
-                      .getAllColumns()
-                      .reduce((acc, column) => {
-                        if (column.getCanHide()) {
-                          acc[column.id] = !allVisible;
-                        }
-                        return acc;
-                      }, {} as VisibilityState);
-                    setTempColumnVisibility(newVisibility);
-                  }}
-                >
-                  {Object.values(tempColumnVisibility).every(Boolean)
-                    ? "Deselect All Columns"
-                    : "Select All Columns"}
+          {/* Toggle columns visibility: Sheet on sm+ screens, Drawer on xs */}
+          <div className="hidden sm:block">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline" className="border-green-500">
+                  <Columns3Icon className="-ms-1 opacity-60" size={16} />
+                  View
                 </Button>
-                <div className="space-y-3 m-2">
-                  {table
-                    .getAllColumns()
-                    .filter((column) => column.getCanHide())
-                    .map((column) => {
-                      const header =
-                        typeof column.columnDef.header === "string"
-                          ? column.columnDef.header
-                          : column.id;
-
-                      return (
-                        <div
-                          key={column.id}
-                          className="has-[data-state=checked]:border-primary/50 relative flex w-full items-start gap-2 rounded-md border border-green-500 p-4 shadow-xs outline-none"
-                        >
-                          <Checkbox
-                            id={column.id}
-                            checked={tempColumnVisibility[column.id] ?? true}
-                            onCheckedChange={(value) =>
-                              setTempColumnVisibility((prev: VisibilityState) => ({
-                                ...prev,
-                                [column.id]: !!value,
-                              }))
-                            }
-                            className="order-1 after:absolute after:inset-0"
-                            aria-describedby={`${column.id}-description`}
-                          />
-                          <div className="grid grow gap-2">
-                            <label
-                              htmlFor={column.id}
-                              className="capitalize font-medium text-sm"
-                            >
-                              {header}
-                            </label>
-                          </div>
-                        </div>
-                      );
-                    })}
+              </SheetTrigger>
+              <SheetContent side="right" className="w-72 sm:w-96">
+                {/* accessible dialog title for screen readers */}
+                <SheetTitle className="sr-only">All Columns</SheetTitle>
+                <div className="flex items-center justify-between px-4 pt-4">
+                  <div>
+                    <h3 className="text-lg font-semibold">All Columns</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Show, hide and reorder columns
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      aria-label="close"
+                      className="p-1 rounded hover:bg-muted/50"
+                      onClick={() => setOpen(false)}
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
-              </ScrollArea>
-              <Button
-                onClick={async () => {
-                  setColumnVisibility(tempColumnVisibility);
-                  setOpen(false);
-
-                  try {
-                    const res = await fetch(
-                      `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/preferences`,
-                      {
-                        method: "POST",
-                        headers: {
-                          "Content-Type": "application/json",
-                        },
-                        credentials: "include",
-                        body: JSON.stringify({
-                          tableName,
-                          preferences: tempColumnVisibility,
-                        }),
+                <div className="px-4 mt-2 flex items-center gap-2">
+                  <Button
+                    size="custom"
+                    className={cn(
+                      "flex-1 p-2",
+                      Object.values(tempColumnVisibility).every(Boolean)
+                        ? "bg-green-500 text-white hover:bg-green-600"
+                        : "border-green-500 hover:bg-gray-500"
+                    )}
+                    onClick={() => {
+                      const allVisible =
+                        Object.values(tempColumnVisibility).every(Boolean);
+                      const newVisibility = table
+                        .getAllColumns()
+                        .reduce((acc, column) => {
+                          if (column.getCanHide()) {
+                            acc[column.id] = !allVisible;
+                          }
+                          return acc;
+                        }, {} as VisibilityState);
+                      setTempColumnVisibility(newVisibility);
+                    }}
+                  >
+                    {Object.values(tempColumnVisibility).every(Boolean)
+                      ? "Deselect All"
+                      : "Select All"}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="custom"
+                    className="px-2"
+                    onClick={() => {
+                      const ids = table
+                        .getAllColumns()
+                        .map((c) => c.id)
+                        .filter((id) => id !== "select" && id !== "actions");
+                      setTempColumnOrder(ids);
+                      toast("✅ Order reset Successfully");
+                    }}
+                  >
+                    Reset
+                  </Button>
+                </div>
+                <ScrollArea className="h-[70vh] text-foreground p-2 mt-3">
+                  <div className="px-2 mb-2 text-sm text-muted-foreground">
+                    Drag to reorder. Disabled checkboxes mean the column cannot
+                    be hidden.
+                  </div>
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={(e) => {
+                      const { active, over } = e;
+                      if (!over || active.id === over.id) return;
+                      const oldIndex = tempColumnOrder.indexOf(
+                        active.id as string
+                      );
+                      const newIndex = tempColumnOrder.indexOf(
+                        over.id as string
+                      );
+                      if (oldIndex !== -1 && newIndex !== -1) {
+                        setTempColumnOrder((prev) => {
+                          const next = arrayMove(prev, oldIndex, newIndex);
+                          return next;
+                        });
                       }
-                    );
+                    }}
+                  >
+                    <SortableContext
+                      items={tempColumnOrder}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      <div className="space-y-2 p-1">
+                        {(() => {
+                          const allIds = table
+                            .getAllColumns()
+                            .map((c) => c.id)
+                            .filter(
+                              (id) => id !== "select" && id !== "actions"
+                            );
+                          let order =
+                            tempColumnOrder && tempColumnOrder.length
+                              ? [...tempColumnOrder]
+                              : [...allIds];
+                          const missing = allIds.filter(
+                            (id) => !order.includes(id)
+                          );
+                          if (missing.length) order = [...order, ...missing];
+                          const finalOrder = order.filter(
+                            (id) => id !== "select" && id !== "actions"
+                          );
+                          return finalOrder.map((colId) => {
+                            const column = table
+                              .getAllColumns()
+                              .find((c) => c.id === colId);
+                            if (!column) return null;
+                            const canHide = column.getCanHide();
+                            const header =
+                              typeof column.columnDef.header === "string"
+                                ? column.columnDef.header
+                                : column.id;
 
-                    if (!res.ok) {
-                      toast.error(" Failed to save preferences");
-                      return;
+                            return (
+                              <SortableItem key={colId} id={colId}>
+                                <div className="flex items-center gap-3 rounded-md p-3 bg-background/50 hover:bg-muted/50 border border-border">
+                                  <div className="cursor-grab px-2 text-muted-foreground">
+                                    <GripVertical className="w-4 h-4" />
+                                  </div>
+                                  <Checkbox
+                                    id={colId}
+                                    checked={
+                                      tempColumnVisibility[colId] ?? true
+                                    }
+                                    onCheckedChange={(value) => {
+                                      if (!canHide) return;
+                                      setTempColumnVisibility(
+                                        (prev: VisibilityState) => ({
+                                          ...prev,
+                                          [colId]: !!value,
+                                        })
+                                      );
+                                    }}
+                                    disabled={!canHide}
+                                    className="mr-2"
+                                    aria-describedby={`${colId}-description`}
+                                  />
+                                  <div className="grow">
+                                    <div className="font-medium capitalize">
+                                      {header}
+                                    </div>
+                                  </div>
+                                </div>
+                              </SortableItem>
+                            );
+                          });
+                        })()}
+                      </div>
+                    </SortableContext>
+                  </DndContext>
+                </ScrollArea>
+                <Button
+                  onClick={async () => {
+                    setColumnVisibility(tempColumnVisibility);
+                    setOpen(false);
+
+                    try {
+                      // ensure table reflects the latest order before saving
+                      try {
+                        const existing = table.getAllColumns().map((c) => c.id);
+                        let orderToApply = tempColumnOrder.filter((id) =>
+                          existing.includes(id)
+                        );
+                        if (existing.includes("select")) {
+                          orderToApply = [
+                            "select",
+                            ...orderToApply.filter((id) => id !== "select"),
+                          ];
+                        }
+                        if (orderToApply.length)
+                          table.setColumnOrder(orderToApply);
+                      } catch (e) {
+                        // ignore
+                      }
+
+                      const payload = {
+                        tableName,
+                        preferences: {
+                          visibility: tempColumnVisibility,
+                          order: tempColumnOrder,
+                          sorting,
+                        },
+                      };
+
+                      const res = await fetch(
+                        `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/preferences`,
+                        {
+                          method: "POST",
+                          headers: {
+                            "Content-Type": "application/json",
+                          },
+                          credentials: "include",
+                          body: JSON.stringify(payload),
+                        }
+                      );
+
+                      if (!res.ok) {
+                        toast.error(" Failed to save preferences");
+                        return;
+                      }
+
+                      toast.success(" Preferences saved!");
+                    } catch (error) {
+                      toast.error(" Network error");
+                      console.error(error);
                     }
+                  }}
+                  className="mt-4 w-full"
+                >
+                  Save
+                </Button>
+              </SheetContent>
+            </Sheet>
+          </div>
 
-                    toast.success(" Preferences saved!");
-                  } catch (error) {
-                    toast.error(" Network error");
-                    console.error(error);
-                  }
-                }}
-                className="mt-4 w-full"
-              >
-                Save
-              </Button>
-            </SheetContent>
-          </Sheet>
+          {/* Small screens: use Drawer with identical content */}
+          <div className="sm:hidden">
+            <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
+              <DrawerTrigger asChild>
+                <Button variant="outline" className="border-green-500">
+                  <Columns3Icon className="-ms-1 opacity-60" size={16} />
+                  View
+                </Button>
+              </DrawerTrigger>
+              <DrawerContent className="flex flex-col h-full">
+                {/* accessible dialog title for screen readers */}
+                <DialogTitle className="sr-only">All Columns</DialogTitle>
+                <div className="flex items-center justify-between px-4 pt-4">
+                  <div>
+                    <h3 className="text-lg font-semibold">All Columns</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Show, hide and reorder columns
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      aria-label="close"
+                      className="p-1 rounded hover:bg-muted/50"
+                      onClick={() => setDrawerOpen(false)}
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="px-4 mt-2 flex items-center gap-2">
+                  <Button
+                    size="custom"
+                    className={cn(
+                      "flex-1 p-2",
+                      Object.values(tempColumnVisibility).every(Boolean)
+                        ? "bg-green-500 text-white hover:bg-green-600"
+                        : "border-green-500 hover:bg-gray-500"
+                    )}
+                    onClick={() => {
+                      const allVisible =
+                        Object.values(tempColumnVisibility).every(Boolean);
+                      const newVisibility = table
+                        .getAllColumns()
+                        .reduce((acc, column) => {
+                          if (column.getCanHide()) acc[column.id] = !allVisible;
+                          return acc;
+                        }, {} as VisibilityState);
+                      setTempColumnVisibility(newVisibility);
+                    }}
+                  >
+                    {Object.values(tempColumnVisibility).every(Boolean)
+                      ? "Deselect All"
+                      : "Select All"}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="custom"
+                    className="px-2"
+                    onClick={() => {
+                      const ids = table
+                        .getAllColumns()
+                        .map((c) => c.id)
+                        .filter((id) => id !== "select" && id !== "actions");
+                      setTempColumnOrder(ids);
+                      toast("✅ Order reset Successfully");
+                    }}
+                  >
+                    Reset
+                  </Button>
+                </div>
+
+                <ScrollArea className="flex-1 text-foreground p-2 mt-3 overflow-auto">
+                  <div className="px-2 mb-2 text-sm text-muted-foreground">
+                    Drag to reorder. Disabled checkboxes mean the column cannot
+                    be hidden.
+                  </div>
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={(e) => {
+                      const { active, over } = e;
+                      if (!over || active.id === over.id) return;
+                      const oldIndex = tempColumnOrder.indexOf(
+                        active.id as string
+                      );
+                      const newIndex = tempColumnOrder.indexOf(
+                        over.id as string
+                      );
+                      if (oldIndex !== -1 && newIndex !== -1)
+                        setTempColumnOrder((prev) =>
+                          arrayMove(prev, oldIndex, newIndex)
+                        );
+                    }}
+                  >
+                    <SortableContext
+                      items={tempColumnOrder}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      <div className="space-y-2 p-1">
+                        {(() => {
+                          const allIds = table
+                            .getAllColumns()
+                            .map((c) => c.id)
+                            .filter(
+                              (id) => id !== "select" && id !== "actions"
+                            );
+                          let order =
+                            tempColumnOrder && tempColumnOrder.length
+                              ? [...tempColumnOrder]
+                              : [...allIds];
+                          const missing = allIds.filter(
+                            (id) => !order.includes(id)
+                          );
+                          if (missing.length) order = [...order, ...missing];
+                          const finalOrder = order.filter(
+                            (id) => id !== "select" && id !== "actions"
+                          );
+                          return finalOrder.map((colId) => {
+                            const column = table
+                              .getAllColumns()
+                              .find((c) => c.id === colId);
+                            if (!column) return null;
+                            const canHide = column.getCanHide();
+                            const header =
+                              typeof column.columnDef.header === "string"
+                                ? column.columnDef.header
+                                : column.id;
+                            return (
+                              <SortableItem key={colId} id={colId}>
+                                <div className="flex items-center gap-3 rounded-md p-3 bg-background/50 hover:bg-muted/50 border border-border">
+                                  <div className="cursor-grab px-2 text-muted-foreground">
+                                    <GripVertical className="w-4 h-4" />
+                                  </div>
+                                  <Checkbox
+                                    id={colId}
+                                    checked={
+                                      tempColumnVisibility[colId] ?? true
+                                    }
+                                    onCheckedChange={(value) => {
+                                      if (!canHide) return;
+                                      setTempColumnVisibility(
+                                        (prev: VisibilityState) => ({
+                                          ...prev,
+                                          [colId]: !!value,
+                                        })
+                                      );
+                                    }}
+                                    disabled={!canHide}
+                                    className="mr-2"
+                                    aria-describedby={`${colId}-description`}
+                                  />
+                                  <div className="grow">
+                                    <div className="font-medium capitalize">
+                                      {header}
+                                    </div>
+                                  </div>
+                                </div>
+                              </SortableItem>
+                            );
+                          });
+                        })()}
+                      </div>
+                    </SortableContext>
+                  </DndContext>
+                </ScrollArea>
+
+                <DrawerFooter className="sticky bottom-0 bg-background p-3">
+                  <Button
+                    onClick={async () => {
+                      setColumnVisibility(tempColumnVisibility);
+                      setDrawerOpen(false);
+
+                      try {
+                        try {
+                          const existing = table
+                            .getAllColumns()
+                            .map((c) => c.id);
+                          let orderToApply = tempColumnOrder.filter((id) =>
+                            existing.includes(id)
+                          );
+                          if (existing.includes("select")) {
+                            orderToApply = [
+                              "select",
+                              ...orderToApply.filter((id) => id !== "select"),
+                            ];
+                          }
+                          if (orderToApply.length)
+                            table.setColumnOrder(orderToApply);
+                        } catch (e) {
+                          // ignore
+                        }
+
+                        const payload = {
+                          tableName,
+                          preferences: {
+                            visibility: tempColumnVisibility,
+                            order: tempColumnOrder,
+                            sorting,
+                          },
+                        };
+
+                        const res = await fetch(
+                          `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/preferences`,
+                          {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            credentials: "include",
+                            body: JSON.stringify(payload),
+                          }
+                        );
+
+                        if (!res.ok) {
+                          toast.error(" Failed to save preferences");
+                          return;
+                        }
+
+                        toast.success(" Preferences saved!");
+                      } catch (error) {
+                        toast.error(" Network error");
+                        console.error(error);
+                      }
+                    }}
+                    className="w-full"
+                  >
+                    <Save className="-ms-1 opacity-60 mr-2" size={16} />
+                    Save
+                  </Button>
+                </DrawerFooter>
+              </DrawerContent>
+            </Drawer>
+          </div>
         </div>
 
         <div className="flex items-center gap-3">
@@ -393,8 +909,9 @@ export default function ConnectDataTable<TData, TValue>({
           </div>
         </div>
       </div>
-      <div className="bg-background overflow-hidden rounded-md border">
-      <Table >
+      {/* Table (visible at all sizes) — scroll horizontally on small viewports */}
+      <div className="bg-background overflow-x-auto rounded-md border">
+        <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -458,58 +975,7 @@ export default function ConnectDataTable<TData, TValue>({
 
       {/* Pagination */}
       <div className="flex items-center justify-between gap-8">
-        {/* Results per page */}
-        <div className="flex items-center gap-3">
-          <Label htmlFor={id} className="max-sm:sr-only">
-            Rows per page
-          </Label>
-          <Select
-            value={table.getState().pagination.pageSize.toString()}
-            onValueChange={(value) => {
-              table.setPageSize(Number(value));
-            }}
-          >
-            <SelectTrigger id={id} className="w-fit whitespace-nowrap">
-              <SelectValue placeholder="Select number of results" />
-            </SelectTrigger>
-            <SelectContent className="[&_*[role=option]]:ps-2 [&_*[role=option]]:pe-8 [&_*[role=option]>span]:start-auto [&_*[role=option]>span]:end-2">
-              {[5, 10, 25, 50].map((pageSize) => (
-                <SelectItem key={pageSize} value={pageSize.toString()}>
-                  {pageSize}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        {/* Page number information */}
-        <div className="text-muted-foreground flex grow justify-end text-sm whitespace-nowrap">
-          <p
-            className="text-muted-foreground text-sm whitespace-nowrap"
-            aria-live="polite"
-          >
-            <span className="text-foreground">
-              {table.getState().pagination.pageIndex *
-                table.getState().pagination.pageSize +
-                1}
-              -
-              {Math.min(
-                Math.max(
-                  table.getState().pagination.pageIndex *
-                    table.getState().pagination.pageSize +
-                    table.getState().pagination.pageSize,
-                  0
-                ),
-                table.getRowCount()
-              )}
-            </span>{" "}
-            of{" "}
-            <span className="text-foreground">
-              {table.getRowCount().toString()}
-            </span>
-          </p>
-        </div>
-
-        {/* Pagination buttons */}
+        {/* Table (visible at all sizes) — scroll horizontally on small viewports */}
         <div>
           <Pagination>
             <PaginationContent>

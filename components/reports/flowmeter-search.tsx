@@ -1,23 +1,23 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import { Check, ChevronsUpDown } from 'lucide-react';
+import * as React from "react";
+import { Check, ChevronsUpDown } from "lucide-react";
 
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
-} from '@/components/ui/command';
+} from "@/components/ui/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
-import { Label } from '../ui/label';
+} from "@/components/ui/popover";
+import { Label } from "../ui/label";
 
 // نوع الداتا
 type Rfp = {
@@ -33,22 +33,32 @@ interface Props {
   data: Rfp[];
   onSelect?: (item: Rfp | null) => void;
   setShowStepsForm: React.Dispatch<React.SetStateAction<boolean>>;
-  setRfpIdData:React.Dispatch<React.SetStateAction<number|undefined>>
-
+  setRfpIdData: React.Dispatch<React.SetStateAction<number | undefined>>;
 }
 
-export function FlowMeterSearch({ data, onSelect, setShowStepsForm,setRfpIdData }: Props) {
-  console.log('from search', data);
+export function FlowMeterSearch({
+  data,
+  onSelect,
+  setShowStepsForm,
+  setRfpIdData,
+}: Props) {
+  console.log("from search", data);
   const [open, setOpen] = React.useState(false);
   const [selected, setSelected] = React.useState<Rfp | null>(null);
 
   const handleSelect = (item: Rfp) => {
-    console.log({item})
-    setRfpIdData(item.id)
+    console.log({ item });
+    setRfpIdData(item.id);
     setSelected(item);
     onSelect?.(item);
     setOpen(false);
   };
+
+  React.useEffect(() => {
+    if (selected?.id) {
+      localStorage.setItem("rfpId", JSON.stringify(selected.id));
+    }
+  }, [selected]);
 
   return (
     <div className="grid grid-cols-4 gap-20">
@@ -77,11 +87,11 @@ export function FlowMeterSearch({ data, onSelect, setShowStepsForm,setRfpIdData 
                     >
                       {selected ? (
                         <span>
-                          {selected.RfpReference} —{' '}
+                          {selected.RfpReference} —{" "}
                           {selected.generalInfo.licensee}
                         </span>
                       ) : (
-                        'Select RFP...'
+                        "Select RFP..."
                       )}
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
@@ -89,7 +99,7 @@ export function FlowMeterSearch({ data, onSelect, setShowStepsForm,setRfpIdData 
                   <PopoverContent
                     className="p-0 w-auto"
                     align="start"
-                    style={{ width: 'var(--radix-popover-trigger-width)' }}
+                    style={{ width: "var(--radix-popover-trigger-width)" }}
                   >
                     {/* <PopoverContent className="w-[528px] p-0"> */}
                     <Command>
@@ -106,10 +116,10 @@ export function FlowMeterSearch({ data, onSelect, setShowStepsForm,setRfpIdData 
                             >
                               <Check
                                 className={cn(
-                                  'mr-2 h-4 w-4',
+                                  "mr-2 h-4 w-4",
                                   selected?.id === item.id
-                                    ? 'opacity-100'
-                                    : 'opacity-0'
+                                    ? "opacity-100"
+                                    : "opacity-0"
                                 )}
                               />
                               <div className="flex flex-col">

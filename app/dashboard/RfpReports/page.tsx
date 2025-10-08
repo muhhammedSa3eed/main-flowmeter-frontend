@@ -1,11 +1,11 @@
-import React, { Suspense } from 'react';
-import { report } from '@/types';
-import Loading from '@/app/loading';
-import { SquareMenu } from 'lucide-react';
+import React, { Suspense } from "react";
+import { report } from "@/types";
+import Loading from "@/app/loading";
+import { SquareMenu } from "lucide-react";
 // import RfpReports from '@/components/RfpReports';
 // import { cookies } from 'next/headers';
-import ReportsDataTable from './reportsData-table';
-import { columns } from './columns';
+import ReportsDataTable from "./reportsData-table";
+import { columns } from "./columns";
 
 async function getAllReports(): Promise<report[]> {
   // const cookieStore = await cookies();
@@ -14,21 +14,21 @@ async function getAllReports(): Promise<report[]> {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_BASE_URL}/reports`,
     {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         // Authorization: `Bearer ${token}`,
       },
       // credentials: 'include',
     }
   );
   if (!response.ok) {
-    console.error('RFP fetch failed:', response.status, response.statusText);
-    throw new Error('Failed to fetch Rfp');
+    console.error("RFP fetch failed:", response.status, response.statusText);
+    throw new Error("Failed to fetch Rfp");
   }
 
   const rfp = await response.json();
-  console.log('RFP Data :', rfp);
+  console.log("RFP Data :", rfp);
   return rfp;
 }
 // const reportData = [
@@ -79,7 +79,7 @@ export default async function ReportsPage() {
   return (
     <Suspense fallback={<Loading />}>
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-        <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min mt-5 p-10">
+        <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min mt-5 p-4 md:p-10">
           <div className="flex items-center justify-center gap-2 text-custom-green2 mb-3">
             <SquareMenu className="w-6 h-6" />
             <span className="text-xl font-bold">Flow Meters Reports</span>

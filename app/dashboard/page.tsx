@@ -14,14 +14,14 @@ import { cookies } from "next/headers";
 import SectionCards from "@/components/SideBar/section-cards";
 async function getDashboardData(): Promise<DashboardStats> {
   const cookieStore = await cookies();
-  const token = cookieStore.get('token')?.value || '';
+  const token = cookieStore.get("token")?.value || "";
   console.log({ token });
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_BASE_URL}/rfp/dashboard`,
     {
       method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
     }

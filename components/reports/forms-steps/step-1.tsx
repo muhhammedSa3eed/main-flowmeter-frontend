@@ -1,23 +1,23 @@
-'use client';
+"use client";
 
 import {
   FormControl,
   FormField,
   FormItem,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectTrigger,
   SelectContent,
   SelectItem,
   SelectValue,
-} from '@/components/ui/select';
-import { ReportSchema } from '@/schemas';
-import { UseFormReturn } from 'react-hook-form';
-import { z } from 'zod';
+} from "@/components/ui/select";
+import { ReportSchema } from "@/schemas";
+import { UseFormReturn } from "react-hook-form";
+import { z } from "zod";
 type StepOneProps = {
   form: UseFormReturn<z.infer<typeof ReportSchema>>;
 };

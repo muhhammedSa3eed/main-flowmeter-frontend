@@ -1,5 +1,5 @@
 // columns.tsx
-'use client'
+"use client";
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
@@ -49,7 +49,8 @@ export const columns: ColumnDef<User>[] = [
     size: 180,
     enableHiding: false,
     filterFn: (row, _id, value) => {
-      const haystack = `${row.original.username} ${row.original.id}`.toLowerCase();
+      const haystack =
+        `${row.original.username} ${row.original.id}`.toLowerCase();
       return haystack.includes((value ?? "").toLowerCase());
     },
   },
@@ -80,9 +81,15 @@ export const columns: ColumnDef<User>[] = [
     header: "Status",
     accessorKey: "status",
     cell: ({ row }) => {
-      const value = (row.getValue("status") as string)?.toLowerCase() as keyof typeof statusColor;
+      const value = (
+        row.getValue("status") as string
+      )?.toLowerCase() as keyof typeof statusColor;
       return (
-        <Badge className={`${statusColor[value] ?? "bg-gray-500"} text-white capitalize`}>
+        <Badge
+          className={`${
+            statusColor[value] ?? "bg-gray-500"
+          } text-white capitalize`}
+        >
           {value}
         </Badge>
       );

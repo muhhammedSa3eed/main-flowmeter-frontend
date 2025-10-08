@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import { useState, useEffect } from 'react';
 
 import { NavMain } from '@/components/SideBar/nav-main';
 import { NavUser } from '@/components/SideBar/nav-user';

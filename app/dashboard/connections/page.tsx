@@ -1,12 +1,12 @@
-import { Cable } from 'lucide-react';
-import { columns } from './columns';
-import { Suspense } from 'react';
-import { dataPolling, dataType } from '@/lib/ConnectionsData';
-import ConnectDataTable from './connectData-table';
-import Loading from '@/app/loading';
-import { DeviceDB } from '@/types';
-import { cookies } from 'next/headers';
-import { fetchPreferences } from '@/lib/fetchPreferences';
+import { Cable } from "lucide-react";
+import { columns } from "./columns";
+import { Suspense } from "react";
+import { dataPolling, dataType } from "@/lib/ConnectionsData";
+import ConnectDataTable from "./connectData-table";
+import Loading from "@/app/loading";
+import { DeviceDB } from "@/types";
+import { cookies } from "next/headers";
+import { fetchPreferences } from "@/lib/fetchPreferences";
 
 async function getDevices(): Promise<DeviceDB[]> {
   // const cookieStore = cookies();
@@ -16,23 +16,25 @@ async function getDevices(): Promise<DeviceDB[]> {
   //   .map((c) => `${encodeURIComponent(c.name)}=${encodeURIComponent(c.value)}`)
   //   .join("; ");
   const cookieStore = await cookies();
-  const token = cookieStore.get('token')?.value || '';
+  const token = cookieStore.get("token")?.value || "";
+  console.log({ token });
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/devices/`,
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/devices`,
     {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
+      credentials: "include",
     }
   );
-
-  if (!response.ok) throw new Error('Failed to fetch devices');
+  console.log({ response });
+  // if (!response.ok) throw new Error("Failed to fetch devices");
 
   return await response.json();
 }
-const tableName = 'ConnectionsTable';
+const tableName = "ConnectionsTable";
 
 export default async function Page() {
   const devices = await getDevices();

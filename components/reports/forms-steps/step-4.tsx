@@ -1,22 +1,23 @@
-'use client';
+"use client";
 
-import { FormControl, FormField, FormItem } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { FormControl, FormField, FormItem } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { ReportSchema } from '@/schemas';
-import { UseFormReturn } from 'react-hook-form';
-import { z } from 'zod';
+} from "@/components/ui/select";
+import { ReportSchema } from "@/schemas";
+import { UseFormReturn } from "react-hook-form";
+import { z } from "zod";
 
 type StepfourProps = {
   form: UseFormReturn<z.infer<typeof ReportSchema>>;
 };
+
 const StepFour = ({ form }: StepfourProps) => {
   return (
     <div className=" px-6 space-y-6 ">

@@ -1,27 +1,27 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   FormControl,
   FormField,
   FormItem,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
-} from '@/components/ui/sheet';
+} from "@/components/ui/sheet";
 import {
   Table,
   TableBody,
@@ -29,12 +29,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { ReportSchema } from '@/schemas';
-import { useState } from 'react';
-import { UseFormReturn } from 'react-hook-form';
-import { z } from 'zod';
-import { useFieldArray } from 'react-hook-form';
+} from "@/components/ui/table";
+import { ReportSchema } from "@/schemas";
+import { useState } from "react";
+import { UseFormReturn } from "react-hook-form";
+import { z } from "zod";
+import { useFieldArray } from "react-hook-form";
 
 type StepTwoProps = {
   form: UseFormReturn<z.infer<typeof ReportSchema>>;
@@ -45,7 +45,7 @@ const StepTwo = ({ form }: StepTwoProps) => {
 
   const { fields } = useFieldArray({
     control,
-    name: 'secondaryMeteringDevice.signalConversion.testSamples',
+    name: "secondaryMeteringDevice.signalConversion.testSamples",
   });
 
   return (
@@ -164,7 +164,9 @@ const StepTwo = ({ form }: StepTwoProps) => {
             Signal Conversion:
           </Label>
 
-          <Button onClick={() => setOpen(true)} type='button'>Analyze</Button>
+          <Button onClick={() => setOpen(true)} type="button">
+            Analyze
+          </Button>
 
           <FormField
             control={form.control}
@@ -203,7 +205,7 @@ const StepTwo = ({ form }: StepTwoProps) => {
       </div>
       {/*The Sheet Modal*/}
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="right" className="!w-[450px] !max-w-none p-6">
+        <SheetContent side="right" className="!w-[450px] !max-w-none p-6 ">
           <SheetHeader>
             <SheetTitle className="text-xl font-bold">
               Signal Conversion Analysis
@@ -337,12 +339,12 @@ const StepTwo = ({ form }: StepTwoProps) => {
                     />
                   </TableCell>
                 </TableRow>
-
-                
               ))}
             </TableBody>
-            
           </Table>
+          <Button onClick={() => setOpen(false)} className="mt-5">
+            Confirm
+          </Button>
         </SheetContent>
       </Sheet>
     </div>
@@ -352,7 +354,8 @@ const StepTwo = ({ form }: StepTwoProps) => {
 export default StepTwo;
 
 {
-  {/* <TableBody>
+  {
+    /* <TableBody>
               <TableRow>
                 <TableCell className="font-medium">Sample 1</TableCell>
                 <TableCell>
@@ -380,32 +383,33 @@ export default StepTwo;
                   <Input defaultValue="75.0" />
                 </TableCell>
               </TableRow>
-            </TableBody> */}
+            </TableBody> */
+  }
   // <TableRow key={field.id}>
-                //   <TableCell className="font-medium">
-                //     Sample {index + 1}
-                //   </TableCell>
-                //   <TableCell>
-                //     <Input
-                //       type="number"
-                //       step="any"
-                //       {...form.register(
-                //         `Secondary Metering Device.signal conversion.test samples.${index}.0` as const,
-                //         { valueAsNumber: true }
-                //       )}
-                //     />
-                //   </TableCell>
-                //   <TableCell>
-                //     <Input
-                //       type="number"
-                //       step="any"
-                //       {...form.register(
-                //         `Secondary Metering Device.signal conversion.test samples.${index}.1` as const,
-                //         { valueAsNumber: true }
-                //       )}
-                //     />
-                //   </TableCell>
-                // </TableRow>
+  //   <TableCell className="font-medium">
+  //     Sample {index + 1}
+  //   </TableCell>
+  //   <TableCell>
+  //     <Input
+  //       type="number"
+  //       step="any"
+  //       {...form.register(
+  //         `Secondary Metering Device.signal conversion.test samples.${index}.0` as const,
+  //         { valueAsNumber: true }
+  //       )}
+  //     />
+  //   </TableCell>
+  //   <TableCell>
+  //     <Input
+  //       type="number"
+  //       step="any"
+  //       {...form.register(
+  //         `Secondary Metering Device.signal conversion.test samples.${index}.1` as const,
+  //         { valueAsNumber: true }
+  //       )}
+  //     />
+  //   </TableCell>
+  // </TableRow>
   /* <CardContent className="space-y-6 mt-4">
          
           <div className="grid grid-cols-4 items-center gap-4">
