@@ -377,7 +377,6 @@ export interface Option {
   label: string;
   icon: string;
 }
-
 export type User = {
   id: string;
   username: string;
@@ -396,12 +395,17 @@ export type User = {
 export interface TablePermission {
   id: number;
   userId: number | null;
-  groupId: number;
+  roleId: number | null;
   tableName: string;
   canRead: boolean;
   canCreate: boolean;
   canUpdate: boolean;
   canDelete: boolean;
+  user: User | null;
+  role: {
+    id: number;
+    name: string;
+  } | null;
 }
 
 export interface Role {
@@ -409,6 +413,38 @@ export interface Role {
   name: string;
   tablePermissions: TablePermission[];
 }
+
+// export type User = {
+//   id: string;
+//   username: string;
+//   name: string;
+//   email: string;
+//   status: string;
+//   loginAttempts: string;
+//   createdAt: string;
+//   updatedAt: string;
+//   role: {
+//     id: number;
+//     name: string;
+//   };
+// };
+
+// export interface TablePermission {
+//   id: number;
+//   userId: number | null;
+//   groupId: number;
+//   tableName: string;
+//   canRead: boolean;
+//   canCreate: boolean;
+//   canUpdate: boolean;
+//   canDelete: boolean;
+// }
+
+// export interface Role {
+//   id: number;
+//   name: string;
+//   tablePermissions: TablePermission[];
+// }
 
 export type PermissionPayload = {
   userId: string;
@@ -424,3 +460,8 @@ export interface Report {
   name: string;
   createdAt: string;
 }
+// export type Group = {
+//   username: string;
+//   email: string;
+//   group: string;
+// };

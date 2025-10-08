@@ -16,9 +16,9 @@ import { AlertDialog, AlertDialogContent } from '@/components/ui/alert-dialog';
 import { Sheet, SheetContent, SheetHeader } from '@/components/ui/sheet';
 import DeleteGroup from '@/components/CRUD/Groups/DeleteGroup';
 import EditGroup from '@/components/CRUD/Groups/EditGroup';
-import { Role } from '@/types';
+import { TablePermission } from '@/types';
 
-export function RowActions({ row }: { row: Row<Role> }) {
+export function RowActions({ row }: { row: Row<TablePermission> }) {
   const [isEditUserOpen, setIsEditUserOpen] = useState(false);
   const [isDeleteUserOpen, setIsDeleteUserOpen] = useState(false);
 

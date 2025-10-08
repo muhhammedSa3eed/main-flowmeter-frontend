@@ -10,11 +10,11 @@ import {
 import { buttonVariants } from '@/components/ui/button';
 import { toast } from 'react-hot-toast';
 import { cn } from '@/lib/utils';
-import { Role } from '@/types';
+import { TablePermission } from '@/types';
 import { CircleAlert } from 'lucide-react';
 import Cookies from 'js-cookie';
 
-export default function DeleteGroup({ roles }: { roles: Role }) {
+export default function DeleteGroup({ roles }: { roles: TablePermission }) {
   const handleDeleteUser = async () => {
     console.log('roles.id', roles.id);
     try {
@@ -50,7 +50,7 @@ export default function DeleteGroup({ roles }: { roles: Role }) {
       }
     }
   };
-  console.log('gs.name:', roles.name);
+  console.log('gs.name:', roles.role?.name);
   return (
     <>
       <AlertDialogHeader>
@@ -60,7 +60,7 @@ export default function DeleteGroup({ roles }: { roles: Role }) {
         </AlertDialogTitle>
         <AlertDialogDescription>
           This action cannot be undone. Do you want to permanently delete the
-          role <strong>{roles.name}</strong>
+          role <strong>{roles.role?.name}</strong>
         </AlertDialogDescription>
       </AlertDialogHeader>
       <AlertDialogFooter>

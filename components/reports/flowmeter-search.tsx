@@ -1,23 +1,23 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { Check, ChevronsUpDown } from "lucide-react";
+import * as React from 'react';
+import { Check, ChevronsUpDown } from 'lucide-react';
 
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 import {
   Command,
   CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
-} from "@/components/ui/command";
+} from '@/components/ui/command';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { Label } from "../ui/label";
+} from '@/components/ui/popover';
+import { Label } from '../ui/label';
 
 // نوع الداتا
 type Rfp = {
@@ -42,7 +42,7 @@ export function FlowMeterSearch({
   setShowStepsForm,
   setRfpIdData,
 }: Props) {
-  console.log("from search", data);
+  console.log('from search', data);
   const [open, setOpen] = React.useState(false);
   const [selected, setSelected] = React.useState<Rfp | null>(null);
 
@@ -56,7 +56,7 @@ export function FlowMeterSearch({
 
   React.useEffect(() => {
     if (selected?.id) {
-      localStorage.setItem("rfpId", JSON.stringify(selected.id));
+      localStorage.setItem('rfpId', JSON.stringify(selected.id));
     }
   }, [selected]);
 
@@ -87,11 +87,11 @@ export function FlowMeterSearch({
                     >
                       {selected ? (
                         <span>
-                          {selected.RfpReference} —{" "}
+                          {selected.RfpReference} —{' '}
                           {selected.generalInfo.licensee}
                         </span>
                       ) : (
-                        "Select RFP..."
+                        'Select RFP...'
                       )}
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
@@ -99,7 +99,7 @@ export function FlowMeterSearch({
                   <PopoverContent
                     className="p-0 w-auto"
                     align="start"
-                    style={{ width: "var(--radix-popover-trigger-width)" }}
+                    style={{ width: 'var(--radix-popover-trigger-width)' }}
                   >
                     {/* <PopoverContent className="w-[528px] p-0"> */}
                     <Command>
@@ -116,10 +116,10 @@ export function FlowMeterSearch({
                             >
                               <Check
                                 className={cn(
-                                  "mr-2 h-4 w-4",
+                                  'mr-2 h-4 w-4',
                                   selected?.id === item.id
-                                    ? "opacity-100"
-                                    : "opacity-0"
+                                    ? 'opacity-100'
+                                    : 'opacity-0'
                                 )}
                               />
                               <div className="flex flex-col">
@@ -139,8 +139,14 @@ export function FlowMeterSearch({
               </div>
             </div>
             <Button
-              className="w-[88%] bg-green-500 text-lg"
+              className={cn(
+                'w-[88%] text-lg',
+                selected
+                  ? 'bg-green-500 hover:bg-green-600'
+                  : 'bg-gray-700 text-white cursor-not-allowed'
+              )}
               onClick={() => setShowStepsForm(true)}
+              disabled={!selected}
             >
               Next
             </Button>

@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-"use client";
-import { useState, useEffect, useId, useRef, useMemo } from "react";
-import * as XLSX from "xlsx";
+'use client';
+import { useState, useEffect, useId, useRef, useMemo } from 'react';
+import * as XLSX from 'xlsx';
 import {
   ColumnFiltersState,
   SortingState,
@@ -14,7 +14,7 @@ import {
   getSortedRowModel,
   useReactTable,
   FilterFn,
-} from "@tanstack/react-table";
+} from '@tanstack/react-table';
 import {
   Table,
   TableBody,
@@ -22,24 +22,24 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from '@/components/ui/table';
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   DndContext,
   closestCenter,
   PointerSensor,
   useSensor,
   useSensors,
-} from "@dnd-kit/core";
+} from '@dnd-kit/core';
 import {
   arrayMove,
   SortableContext,
   verticalListSortingStrategy,
   useSortable,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, X } from "lucide-react";
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { GripVertical, X } from 'lucide-react';
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -49,9 +49,9 @@ import {
   Download,
   ChevronFirstIcon,
   ChevronLastIcon,
-} from "lucide-react";
+} from 'lucide-react';
 
-import { RankingInfo, rankItem } from "@tanstack/match-sorter-utils";
+import { RankingInfo, rankItem } from '@tanstack/match-sorter-utils';
 
 import {
   Select,
@@ -59,35 +59,35 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
+} from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
-import { Checkbox } from "@/components/ui/checkbox";
-import Link from "next/link";
-import toast from "react-hot-toast";
+import { Checkbox } from '@/components/ui/checkbox';
+import Link from 'next/link';
+import toast from 'react-hot-toast';
 
-import { cn } from "@/lib/utils";
+import { cn } from '@/lib/utils';
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet";
-import { DialogTitle } from "@/components/ui/dialog";
+} from '@/components/ui/sheet';
+import { DialogTitle } from '@/components/ui/dialog';
 import {
   Drawer,
   DrawerContent,
   DrawerTrigger,
   DrawerFooter,
-} from "@/components/ui/drawer";
+} from '@/components/ui/drawer';
 import {
   Pagination,
   PaginationContent,
   PaginationItem,
-} from "@/components/ui/pagination";
-import { Label } from "@/components/ui/label";
+} from '@/components/ui/pagination';
+import { Label } from '@/components/ui/label';
 
 function SortableItem({
   id,
@@ -101,7 +101,7 @@ function SortableItem({
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    touchAction: "none",
+    touchAction: 'none',
   } as React.CSSProperties;
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
@@ -115,7 +115,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
 }
 
-declare module "@tanstack/table-core" {
+declare module '@tanstack/table-core' {
   interface FilterFns {
     fuzzy: FilterFn<unknown>;
   }
@@ -134,8 +134,8 @@ export default function ReportsDataTable<TData, TValue>({
   data,
   columns,
 }: DataTableProps<TData, TValue>) {
-  const tableName = "RFpDataTable";
-
+  const tableName = 'RFpDataTable';
+  console.log({ columns }, { data });
   const id = useId();
   const [open, setOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -162,7 +162,7 @@ export default function ReportsDataTable<TData, TValue>({
   const inputRef = useRef<HTMLInputElement>(null);
   const [dataTable, setDataTable] = useState(data);
   useEffect(() => setDataTable(data), [data]);
-
+  console.log({ dataTable });
   // Determine if we're ready to render the table: either prefs loaded from server
   // or we already have a sorting value from localStorage
   const readyToRender = prefsLoaded || (sorting && sorting.length > 0);
@@ -205,14 +205,14 @@ export default function ReportsDataTable<TData, TValue>({
       const allIds = table
         .getAllColumns()
         .map((c) => c.id)
-        .filter((id) => id !== "select" && id !== "actions");
+        .filter((id) => id !== 'select' && id !== 'actions');
 
       // initialize order from table state or fallback to allIds
       const currentOrder = table.getState().columnOrder as string[] | undefined;
       let orderToSet = allIds;
       if (currentOrder && currentOrder.length) {
         orderToSet = currentOrder.filter(
-          (id) => id !== "select" && id !== "actions"
+          (id) => id !== 'select' && id !== 'actions'
         );
         const missing = allIds.filter((id) => !orderToSet.includes(id));
         if (missing.length) orderToSet = [...orderToSet, ...missing];
@@ -238,7 +238,14 @@ export default function ReportsDataTable<TData, TValue>({
       try {
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/get/preferences/${tableName}`,
-          { method: "GET", credentials: "include" }
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImU2MmFhZGRlLWU5MDYtNGU0Ni1hYWJlLWU2YWUyZmIyZGEwZiIsImVtYWlsIjoid2FsYWFlbWFtMDc3QGdtYWlsLmNvbSIsInJvbGUiOiJTdXBlckFkbWluIiwiaWF0IjoxNzU5OTI0MjYzLCJleHAiOjE3NTk5MjUxNjN9.YvS-FESf3hLxBlDuIUB0K5aLtDFOC0TbCIqe5w_GC4k`,
+            },
+            credentials: 'include',
+          }
         );
         if (!res.ok) return;
         const json = await res.json();
@@ -248,21 +255,21 @@ export default function ReportsDataTable<TData, TValue>({
         if (prefs.visibility) {
           setColumnVisibility(prefs.visibility);
           setTempColumnVisibility(prefs.visibility);
-        } else if (prefs && typeof prefs === "object") {
+        } else if (prefs && typeof prefs === 'object') {
           setColumnVisibility(prefs);
           setTempColumnVisibility(prefs);
         }
 
         if (prefs.order) {
           const filtered = (prefs.order as string[]).filter(
-            (id) => id !== "select" && id !== "actions"
+            (id) => id !== 'select' && id !== 'actions'
           );
           setTempColumnOrder(filtered);
           try {
             const finalOrder = [
-              ...(table.getColumn("select") ? ["select"] : []),
+              ...(table.getColumn('select') ? ['select'] : []),
               ...filtered,
-              ...(table.getColumn("actions") ? ["actions"] : []),
+              ...(table.getColumn('actions') ? ['actions'] : []),
             ];
             const allIds = table.getAllColumns().map((c) => c.id);
             const normalized = [
@@ -303,10 +310,10 @@ export default function ReportsDataTable<TData, TValue>({
         let orderToApply = tempColumnOrder.filter((id) =>
           existing.includes(id)
         );
-        if (existing.includes("select")) {
+        if (existing.includes('select')) {
           orderToApply = [
-            "select",
-            ...orderToApply.filter((id) => id !== "select"),
+            'select',
+            ...orderToApply.filter((id) => id !== 'select'),
           ];
         }
         if (orderToApply.length) table.setColumnOrder(orderToApply);
@@ -326,23 +333,25 @@ export default function ReportsDataTable<TData, TValue>({
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/preferences`,
         {
-          method: "POST",
+          method: 'POST',
+
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
+            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImU2MmFhZGRlLWU5MDYtNGU0Ni1hYWJlLWU2YWUyZmIyZGEwZiIsImVtYWlsIjoid2FsYWFlbWFtMDc3QGdtYWlsLmNvbSIsInJvbGUiOiJTdXBlckFkbWluIiwiaWF0IjoxNzU5OTI0MjYzLCJleHAiOjE3NTk5MjUxNjN9.YvS-FESf3hLxBlDuIUB0K5aLtDFOC0TbCIqe5w_GC4k`,
           },
-          credentials: "include",
+          credentials: 'include',
           body: JSON.stringify(payload),
         }
       );
 
       if (!res.ok) {
-        toast.error(" Failed to save preferences");
+        toast.error(' Failed to save preferences');
         return;
       }
 
-      toast.success(" Preferences saved!");
+      toast.success(' Preferences saved!');
     } catch (error) {
-      toast.error(" Network error");
+      toast.error(' Network error');
       console.error(error);
     }
   };
@@ -354,10 +363,10 @@ export default function ReportsDataTable<TData, TValue>({
       row.getVisibleCells().forEach((cell) => {
         const col = cell.column.columnDef;
 
-        if (col.id === "select") return;
+        if (col.id === 'select') return;
 
         const header =
-          typeof col.header === "string"
+          typeof col.header === 'string'
             ? col.header
             : col.id || `column_${cell.column.id}`;
         rowData[header] = cell.getValue();
@@ -367,8 +376,8 @@ export default function ReportsDataTable<TData, TValue>({
 
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "FlowMeters");
-    XLSX.writeFile(workbook, "flow-meters.xlsx");
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'FlowMeters');
+    XLSX.writeFile(workbook, 'flow-meters.xlsx');
   };
 
   return (
@@ -382,7 +391,7 @@ export default function ReportsDataTable<TData, TValue>({
               placeholder="Search all columns..."
               value={globalFilter}
               onChange={(e) => setGlobalFilter(e.target.value)}
-              className={cn("peer min-w-auto ps-9")}
+              className={cn('peer min-w-auto ps-9')}
             />
           </div>
 
@@ -420,10 +429,10 @@ export default function ReportsDataTable<TData, TValue>({
                   <Button
                     size="custom"
                     className={cn(
-                      "flex-1 p-2",
+                      'flex-1 p-2',
                       Object.values(tempColumnVisibility).every(Boolean)
-                        ? "bg-green-500 text-white hover:bg-green-600"
-                        : "border-green-500 hover:bg-gray-500"
+                        ? 'bg-green-500 text-white hover:bg-green-600'
+                        : 'border-green-500 hover:bg-gray-500'
                     )}
                     onClick={() => {
                       const allVisible =
@@ -440,8 +449,8 @@ export default function ReportsDataTable<TData, TValue>({
                     }}
                   >
                     {Object.values(tempColumnVisibility).every(Boolean)
-                      ? "Deselect All"
-                      : "Select All"}
+                      ? 'Deselect All'
+                      : 'Select All'}
                   </Button>
                   <Button
                     variant="outline"
@@ -451,7 +460,7 @@ export default function ReportsDataTable<TData, TValue>({
                       const ids = table
                         .getAllColumns()
                         .map((c) => c.id)
-                        .filter((id) => id !== "select" && id !== "actions");
+                        .filter((id) => id !== 'select' && id !== 'actions');
                       setTempColumnOrder(ids);
                       // Preserve the current ID visibility (do not re-enable it on reset)
                       setTempColumnVisibility((prev) => {
@@ -469,7 +478,7 @@ export default function ReportsDataTable<TData, TValue>({
                           next.id = false;
                         return next;
                       });
-                      toast("✅ Order reset Successfully");
+                      toast('✅ Order reset Successfully');
                     }}
                   >
                     Reset
@@ -510,7 +519,7 @@ export default function ReportsDataTable<TData, TValue>({
                             .getAllColumns()
                             .map((c) => c.id)
                             .filter(
-                              (id) => id !== "select" && id !== "actions"
+                              (id) => id !== 'select' && id !== 'actions'
                             );
                           let order =
                             tempColumnOrder && tempColumnOrder.length
@@ -521,7 +530,7 @@ export default function ReportsDataTable<TData, TValue>({
                           );
                           if (missing.length) order = [...order, ...missing];
                           const finalOrder = order.filter(
-                            (id) => id !== "select" && id !== "actions"
+                            (id) => id !== 'select' && id !== 'actions'
                           );
                           return finalOrder.map((colId) => {
                             const column = table
@@ -530,7 +539,7 @@ export default function ReportsDataTable<TData, TValue>({
                             if (!column) return null;
                             const canHide = column.getCanHide();
                             const header =
-                              typeof column.columnDef.header === "string"
+                              typeof column.columnDef.header === 'string'
                                 ? column.columnDef.header
                                 : column.id;
 
@@ -558,8 +567,8 @@ export default function ReportsDataTable<TData, TValue>({
                                     aria-describedby={`${colId}-description`}
                                   />
                                   <div
-                                    className={cn("grow", {
-                                      "cursor-pointer": canHide,
+                                    className={cn('grow', {
+                                      'cursor-pointer': canHide,
                                     })}
                                     onClick={() => {
                                       if (!canHide) return;
@@ -570,11 +579,11 @@ export default function ReportsDataTable<TData, TValue>({
                                         })
                                       );
                                     }}
-                                    role={canHide ? "button" : undefined}
+                                    role={canHide ? 'button' : undefined}
                                     tabIndex={canHide ? 0 : -1}
                                     onKeyDown={(e) => {
                                       if (!canHide) return;
-                                      if (e.key === "Enter" || e.key === " ") {
+                                      if (e.key === 'Enter' || e.key === ' ') {
                                         e.preventDefault();
                                         setTempColumnVisibility(
                                           (prev: VisibilityState) => ({
@@ -647,10 +656,10 @@ export default function ReportsDataTable<TData, TValue>({
                   <Button
                     size="custom"
                     className={cn(
-                      "flex-1 p-2",
+                      'flex-1 p-2',
                       Object.values(tempColumnVisibility).every(Boolean)
-                        ? "bg-green-500 text-white hover:bg-green-600"
-                        : "border-green-500 hover:bg-gray-500"
+                        ? 'bg-green-500 text-white hover:bg-green-600'
+                        : 'border-green-500 hover:bg-gray-500'
                     )}
                     onClick={() => {
                       const allVisible =
@@ -667,8 +676,8 @@ export default function ReportsDataTable<TData, TValue>({
                     }}
                   >
                     {Object.values(tempColumnVisibility).every(Boolean)
-                      ? "Deselect All"
-                      : "Select All"}
+                      ? 'Deselect All'
+                      : 'Select All'}
                   </Button>
                   <Button
                     variant="outline"
@@ -680,7 +689,7 @@ export default function ReportsDataTable<TData, TValue>({
                         .map((c) => c.id)
                         .filter(
                           (id) =>
-                            id !== "select" && id !== "actions" && id !== "id"
+                            id !== 'select' && id !== 'actions' && id !== 'id'
                         );
                       setTempColumnOrder(ids);
                       // Preserve the current ID visibility (do not re-enable it on reset)
@@ -699,7 +708,7 @@ export default function ReportsDataTable<TData, TValue>({
                           next.id = false;
                         return next;
                       });
-                      toast("✅ Order reset Successfully");
+                      toast('✅ Order reset Successfully');
                     }}
                   >
                     Reset
@@ -741,9 +750,9 @@ export default function ReportsDataTable<TData, TValue>({
                             .map((c) => c.id)
                             .filter(
                               (id) =>
-                                id !== "select" &&
-                                id !== "actions" &&
-                                id !== "id"
+                                id !== 'select' &&
+                                id !== 'actions' &&
+                                id !== 'id'
                             );
                           let order =
                             tempColumnOrder && tempColumnOrder.length
@@ -755,7 +764,7 @@ export default function ReportsDataTable<TData, TValue>({
                           if (missing.length) order = [...order, ...missing];
                           const finalOrder = order.filter(
                             (id) =>
-                              id !== "select" && id !== "actions" && id !== "id"
+                              id !== 'select' && id !== 'actions' && id !== 'id'
                           );
                           return finalOrder.map((colId) => {
                             const column = table
@@ -764,7 +773,7 @@ export default function ReportsDataTable<TData, TValue>({
                             if (!column) return null;
                             const canHide = column.getCanHide();
                             const header =
-                              typeof column.columnDef.header === "string"
+                              typeof column.columnDef.header === 'string'
                                 ? column.columnDef.header
                                 : column.id;
 
@@ -792,8 +801,8 @@ export default function ReportsDataTable<TData, TValue>({
                                     aria-describedby={`${colId}-description`}
                                   />
                                   <div
-                                    className={cn("grow", {
-                                      "cursor-pointer": canHide,
+                                    className={cn('grow', {
+                                      'cursor-pointer': canHide,
                                     })}
                                     onClick={() => {
                                       if (!canHide) return;
@@ -804,11 +813,11 @@ export default function ReportsDataTable<TData, TValue>({
                                         })
                                       );
                                     }}
-                                    role={canHide ? "button" : undefined}
+                                    role={canHide ? 'button' : undefined}
                                     tabIndex={canHide ? 0 : -1}
                                     onKeyDown={(e) => {
                                       if (!canHide) return;
-                                      if (e.key === "Enter" || e.key === " ") {
+                                      if (e.key === 'Enter' || e.key === ' ') {
                                         e.preventDefault();
                                         setTempColumnVisibility(
                                           (prev: VisibilityState) => ({
@@ -861,7 +870,7 @@ export default function ReportsDataTable<TData, TValue>({
         </div>
         <div className="flex items-center gap-3">
           <Link href="/dashboard/RfpReports/add-report">
-            <Button className="ml-auto" variant={"custom"}>
+            <Button className="ml-auto" variant={'custom'}>
               <CirclePlus
                 className="-ms-1 opacity-60"
                 size={16}
@@ -885,7 +894,7 @@ export default function ReportsDataTable<TData, TValue>({
                         <TableHead
                           key={header.id}
                           className={`whitespace-nowrap font-semibold text-black dark:text-white ${
-                            header.id === "actions" ? "sticky -right-[1px]" : ""
+                            header.id === 'actions' ? 'sticky -right-[1px]' : ''
                           }`}
                         >
                           {header.isPlaceholder
@@ -905,15 +914,15 @@ export default function ReportsDataTable<TData, TValue>({
                   table.getRowModel().rows.map((row) => (
                     <TableRow
                       key={row.id}
-                      data-state={row.getIsSelected() && "selected"}
+                      data-state={row.getIsSelected() && 'selected'}
                     >
                       {row.getVisibleCells().map((cell) => (
                         <TableCell
                           key={cell.id}
                           className={`whitespace-nowrap ${
-                            cell.column.id === "actions"
-                              ? "sticky -right-[1px] text-center bg-background z-10"
-                              : ""
+                            cell.column.id === 'actions'
+                              ? 'sticky -right-[1px] text-center bg-background z-10'
+                              : ''
                           }`}
                         >
                           {flexRender(
@@ -947,15 +956,15 @@ export default function ReportsDataTable<TData, TValue>({
                   .getVisibleCells()
                   .filter(
                     (c) =>
-                      c.column.id !== "select" &&
-                      c.column.id !== "actions" &&
-                      c.column.id !== "id"
+                      c.column.id !== 'select' &&
+                      c.column.id !== 'actions' &&
+                      c.column.id !== 'id'
                   );
                 // Prefer title or ReportRef as the primary field; never pick id
                 const primary =
                   visible.find(
                     (c) =>
-                      c.column.id === "title" || c.column.id === "ReportRef"
+                      c.column.id === 'title' || c.column.id === 'ReportRef'
                   ) || visible[0];
                 const other = visible.filter((c) => c !== primary);
 
@@ -974,7 +983,7 @@ export default function ReportsDataTable<TData, TValue>({
                             >
                               <div className="text-sm font-semibold text-muted-foreground">
                                 {typeof cell.column.columnDef.header ===
-                                "string"
+                                'string'
                                   ? cell.column.columnDef.header
                                   : cell.column.id}
                               </div>
@@ -993,16 +1002,16 @@ export default function ReportsDataTable<TData, TValue>({
                         {/* actions cell (if present) */}
                         {row
                           .getVisibleCells()
-                          .find((c) => c.column.id === "actions") ? (
+                          .find((c) => c.column.id === 'actions') ? (
                           <div className="absolute top-0 right-2">
                             {flexRender(
                               row
                                 .getVisibleCells()
-                                .find((c) => c.column.id === "actions")!.column
+                                .find((c) => c.column.id === 'actions')!.column
                                 .columnDef.cell,
                               row
                                 .getVisibleCells()
-                                .find((c) => c.column.id === "actions")!
+                                .find((c) => c.column.id === 'actions')!
                                 .getContext()
                             )}
                           </div>
@@ -1080,8 +1089,8 @@ export default function ReportsDataTable<TData, TValue>({
                 ),
                 table.getRowCount()
               )}
-            </span>{" "}
-            of{" "}
+            </span>{' '}
+            of{' '}
             <span className="text-foreground">
               {table.getRowCount().toString()}
             </span>

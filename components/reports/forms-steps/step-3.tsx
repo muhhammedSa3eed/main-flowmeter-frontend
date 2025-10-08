@@ -1,42 +1,42 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
 import {
   FormControl,
   FormField,
   FormItem,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from '@/components/ui/popover';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { cn } from "@/lib/utils";
-import { ReportSchema } from "@/schemas";
-import { CalendarIcon } from "lucide-react";
-import { UseFormReturn } from "react-hook-form";
-import { z } from "zod";
-import { addDays, format, isValid, parseISO } from "date-fns";
-import { useEffect } from "react";
+} from '@/components/ui/select';
+import { cn } from '@/lib/utils';
+import { ReportSchema } from '@/schemas';
+import { CalendarIcon } from 'lucide-react';
+import { UseFormReturn } from 'react-hook-form';
+import { z } from 'zod';
+import { addDays, format, isValid, parseISO } from 'date-fns';
+import { useEffect } from 'react';
 
 type StepThreeProps = {
   form: UseFormReturn<z.infer<typeof ReportSchema>>;
 };
 const StepThree = ({ form }: StepThreeProps) => {
-  console.log(form.watch("dataCollection.weightedError.startDate"));
-  console.log("endDate", form.watch("dataCollection.weightedError.endDate"));
+  // console.log(form.watch('dataCollection.weightedError.startDate'));
+  // console.log('endDate', form.watch('dataCollection.weightedError.endDate'));
   // const startDate = form.watch("dataCollection.weightedError.startDate");
   // const endDate = form.watch("dataCollection.weightedError.endDate");
 
@@ -59,13 +59,13 @@ const StepThree = ({ form }: StepThreeProps) => {
     // ^^ Muhhammed
 
     const sub = form.watch((value, { name }) => {
-      if (name === "dataCollection.weightedError.startDate") {
+      if (name === 'dataCollection.weightedError.startDate') {
         const startDate = value.dataCollection?.weightedError?.startDate;
         if (startDate) {
           const endDate = addDays(parseISO(startDate), 1);
           form.setValue(
-            "dataCollection.weightedError.endDate",
-            format(endDate, "yyyy-MM-dd")
+            'dataCollection.weightedError.endDate',
+            format(endDate, 'yyyy-MM-dd')
           );
         }
       }
@@ -80,7 +80,7 @@ const StepThree = ({ form }: StepThreeProps) => {
       </p>
       <div className="space-y-6 mt-4">
         {/* Row 1 */}
-        <div className="grid grid-cols-5 items-center gap-4">
+        <div className="grid grid-cols-4 items-center gap-4">
           <h3 className="col-span-1 text-sm font-semibold">Weighted Error:</h3>
 
           <FormField
@@ -97,14 +97,14 @@ const StepThree = ({ form }: StepThreeProps) => {
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
-                          variant={"outline"}
+                          variant={'outline'}
                           className={cn(
-                            "w-full pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
+                            'w-full pl-3 text-left font-normal',
+                            !field.value && 'text-muted-foreground'
                           )}
                         >
                           {selectedDate ? (
-                            format(selectedDate, "PPP")
+                            format(selectedDate, 'PPP')
                           ) : (
                             <span>Start date</span>
                           )}
@@ -120,10 +120,10 @@ const StepThree = ({ form }: StepThreeProps) => {
                         onSelect={(date) =>
                           // نخزن في الفورم كـ 'yyyy-MM-dd' أو نمرر undefined لو اتلغى
                           field.onChange(
-                            date ? format(date, "yyyy-MM-dd") : undefined
+                            date ? format(date, 'yyyy-MM-dd') : undefined
                           )
                         }
-                        disabled={(date) => date < new Date("1900-01-01")}
+                        disabled={(date) => date < new Date('1900-01-01')}
                         captionLayout="dropdown"
                       />
                     </PopoverContent>
@@ -148,14 +148,14 @@ const StepThree = ({ form }: StepThreeProps) => {
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
-                          variant={"outline"}
+                          variant={'outline'}
                           className={cn(
-                            "w-full pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
+                            'w-full pl-3 text-left font-normal',
+                            !field.value && 'text-muted-foreground'
                           )}
                         >
                           {selectedDate ? (
-                            format(selectedDate, "PPP")
+                            format(selectedDate, 'PPP')
                           ) : (
                             <span>End date</span>
                           )}
@@ -170,10 +170,10 @@ const StepThree = ({ form }: StepThreeProps) => {
                         selected={selectedDate}
                         onSelect={(date) =>
                           field.onChange(
-                            date ? format(date, "yyyy-MM-dd") : undefined
+                            date ? format(date, 'yyyy-MM-dd') : undefined
                           )
                         }
-                        disabled={(date) => date < new Date("1900-01-01")}
+                        disabled={(date) => date < new Date('1900-01-01')}
                         captionLayout="dropdown"
                       />
                     </PopoverContent>
@@ -197,6 +197,7 @@ const StepThree = ({ form }: StepThreeProps) => {
               </FormItem>
             )}
           />
+          <div></div>
           <FormField
             control={form.control}
             name="dataCollection.weightedError.probabilityDistribution"
@@ -220,7 +221,7 @@ const StepThree = ({ form }: StepThreeProps) => {
               </FormItem>
             )}
           />
-          <div></div>
+
           <FormField
             control={form.control}
             name="dataCollection.weightedError.sensitivityCoefficient"

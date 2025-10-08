@@ -1,12 +1,12 @@
-import { Suspense } from "react";
-import Loading from "@/app/loading";
-import { ShieldCheck } from "lucide-react";
-import PermissionsTable from "./PermissionsTable";
-import { cookies } from "next/headers";
-import { columns } from "./columns";
-import { Group } from "@/types";
-import { fetchPreferences } from "@/lib/fetchPreferences";
-async function getAllGroup(): Promise<Group[]> {
+import { Suspense } from 'react';
+import Loading from '@/app/loading';
+import { ShieldCheck } from 'lucide-react';
+import PermissionsTable from './PermissionsTable';
+import { cookies } from 'next/headers';
+import { columns } from './columns';
+import { TablePermission } from '@/types';
+import { fetchPreferences } from '@/lib/fetchPreferences';
+async function getAllGroup(): Promise<TablePermission[]> {
   // const cookieStore = cookies();
 
   // const cookieHeader = (await cookieStore)
@@ -14,16 +14,16 @@ async function getAllGroup(): Promise<Group[]> {
   //   .map((c) => `${encodeURIComponent(c.name)}=${encodeURIComponent(c.value)}`)
   //   .join("; ");
   const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value || "";
+  const token = cookieStore.get('token')?.value || '';
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/groups`,
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/permissions/table`,
     {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
-      credentials: "include",
+      credentials: 'include',
     }
   );
 
@@ -32,14 +32,14 @@ async function getAllGroup(): Promise<Group[]> {
   // }
 
   const UsersData = await response.json();
-  return UsersData;
+  return UsersData?.tablePermissions;
 }
-const tableName = "Permissions";
+const tableName = 'Permissions';
 
 export default async function Page() {
   const GroupsData = await getAllGroup();
   const preferences = await fetchPreferences(tableName);
-  console.log("Groups :", GroupsData);
+  console.log('Groups :', GroupsData);
   return (
     <Suspense fallback={<Loading />}>
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">

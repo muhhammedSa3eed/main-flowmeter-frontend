@@ -1,11 +1,12 @@
-import { Suspense } from "react";
-import Loading from "@/app/loading";
-import { Users } from "lucide-react";
-import { User } from "@/types";
-import UserTable from "./UserTable";
-import { cookies } from "next/headers";
-import { columns } from "./columns";
-import { fetchPreferences } from "@/lib/fetchPreferences";
+import { Suspense } from 'react';
+import Loading from '@/app/loading';
+import { Users } from 'lucide-react';
+import { User } from '@/types';
+import UserTable from './UserTable';
+
+import { columns } from './columns';
+import { fetchPreferences } from '@/lib/fetchPreferences';
+import { cookies } from 'next/headers';
 async function getAllUsers(): Promise<User[]> {
   // const cookieStore = cookies();
 
@@ -14,16 +15,16 @@ async function getAllUsers(): Promise<User[]> {
   //   .map((c) => `${encodeURIComponent(c.name)}=${encodeURIComponent(c.value)}`)
   //   .join("; ");
   const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value || "";
+  const token = cookieStore.get('token')?.value || '';
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_BASE_URL}/users`,
     {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
-      credentials: "include",
+      credentials: 'include',
     }
   );
 
@@ -35,12 +36,13 @@ async function getAllUsers(): Promise<User[]> {
   return UsersData;
 }
 
-const tableName = "Users";
+const tableName = 'Users';
 
 export default async function Page() {
   const UsersData = await getAllUsers();
   const preferences = await fetchPreferences(tableName);
-  console.log("Users :", UsersData);
+  const cookieStore = await cookies();
+  const token = cookieStore.get('token')?.value || '';
   return (
     <Suspense fallback={<Loading />}>
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
@@ -55,6 +57,7 @@ export default async function Page() {
             data={UsersData}
             columns={columns}
             preferences={preferences}
+            token={token}
           />
         </div>
       </div>
