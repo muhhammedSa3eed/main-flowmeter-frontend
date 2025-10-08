@@ -383,7 +383,7 @@ export default function ReportsDataTable<TData, TValue>({
   return (
     <div className="space-y-4">
       {/* Filters */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-end md:justify-between gap-3">
         <div className="flex items-center gap-3">
           {/* Filter by name or email */}
           <div className="relative">
@@ -870,7 +870,7 @@ export default function ReportsDataTable<TData, TValue>({
         </div>
         <div className="flex items-center gap-3">
           <Link href="/dashboard/RfpReports/add-report">
-            <Button className="ml-auto" variant={'custom'}>
+            <Button className="ml-auto" variant={"custom"}>
               <CirclePlus
                 className="-ms-1 opacity-60"
                 size={16}

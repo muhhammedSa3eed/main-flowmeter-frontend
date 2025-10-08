@@ -35,12 +35,12 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   Columns3Icon,
-  Plus,
   ChevronFirstIcon,
   ChevronLastIcon,
   GripVertical,
   X,
   Save,
+  CirclePlus,
 } from 'lucide-react';
 import {
   DndContext,
@@ -172,7 +172,8 @@ export default function UserTable<TData, TValue>({
   const id = useId();
   const [open, setOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [globalFilter, setGlobalFilter] = useState('');
+  const [addDrawerOpen, setAddDrawerOpen] = useState(false);
+  const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState<SortingState>(() => {
     try {
       const raw = localStorage.getItem(`${tableName}-sorting`);
@@ -194,8 +195,11 @@ export default function UserTable<TData, TValue>({
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const [dataTable, setDataTable] = useState(data);
+  const [dataLoaded, setDataLoaded] = useState(false);
   useEffect(() => {
     setDataTable(data);
+    // mark that data has been received and applied
+    setDataLoaded(true);
   }, [data]);
 
   // Determine if we're ready to render the table: either prefs loaded from server,
@@ -333,10 +337,24 @@ export default function UserTable<TData, TValue>({
     fetchGroups();
   }, []);
 
+  // Show a skeleton while preferences or data are still loading (match RfpTable behavior)
+  if (!prefsLoaded || !dataLoaded) {
+    return (
+      <div className="bg-background overflow-hidden rounded-md border p-8">
+        <div className="animate-pulse">
+          <div className="h-6 bg-slate-200 rounded w-1/3 mb-4" />
+          <div className="h-4 bg-slate-100 rounded w-full mb-2" />
+          <div className="h-4 bg-slate-100 rounded w-full mb-2" />
+          <div className="h-4 bg-slate-100 rounded w-3/4" />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       {/* Filters */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-end md:justify-between gap-3">
         <div className="flex items-center gap-3">
           <Input
             placeholder="Search all columns..."
@@ -821,12 +839,17 @@ export default function UserTable<TData, TValue>({
             </Drawer>
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        {/* Add New User: Sheet for sm+ screens, Drawer for small screens */}
+        <div className="hidden sm:flex items-center gap-3">
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
-              <Button variant={'custom'}>
-                {' '}
-                <Plus style={{ height: 20, width: 20 }} /> Add New User
+              <Button variant={"custom"}>
+                <CirclePlus
+                  className="-ms-1 opacity-60"
+                  size={16}
+                  aria-hidden="true"
+                />
+                Add New User
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="md:max-w-md">
@@ -842,6 +865,41 @@ export default function UserTable<TData, TValue>({
               </div>
             </SheetContent>
           </Sheet>
+        </div>
+
+        <div className="sm:hidden flex items-center gap-3">
+          <Drawer open={addDrawerOpen} onOpenChange={setAddDrawerOpen}>
+            <DrawerTrigger asChild className=" me-auto">
+              <Button variant={"custom"}>
+                <CirclePlus
+                  className="-ms-1 opacity-60"
+                  size={16}
+                  aria-hidden="true"
+                />
+                Add New User
+              </Button>
+            </DrawerTrigger>
+            <DrawerContent className="flex flex-col h-full">
+              <div className="flex items-center justify-between px-4 pt-4">
+                <div>
+                  <h3 className="text-lg font-semibold">User Information</h3>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    aria-label="close"
+                    className="p-1 rounded hover:bg-muted/50"
+                    onClick={() => setAddDrawerOpen(false)}
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex-1 overflow-auto p-4">
+                <AddUser />
+              </div>
+            </DrawerContent>
+          </Drawer>
         </div>
       </div>
 

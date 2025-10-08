@@ -144,7 +144,21 @@ export default function ConnectDataTable<TData, TValue>({
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const [globalFilter, setGlobalFilter] = useState<any>([]);
-  const [sorting, setSorting] = useState<SortingState>(() => {
+  // tempSorting tracks user clicks in the UI (sheet/drawer) and is NOT applied
+  // until the user clicks Save. appliedSorting is the sorting applied to the live table.
+  const [tempSorting, setTempSorting] = useState<SortingState>(() => {
+    try {
+      if (preferences && (preferences as any).sorting) {
+        return (preferences as any).sorting as SortingState;
+      }
+      const raw = localStorage.getItem(`${tableName}-sorting`);
+      if (raw) return JSON.parse(raw) as SortingState;
+    } catch (e) {
+      // ignore
+    }
+    return [];
+  });
+  const [appliedSorting, setAppliedSorting] = useState<SortingState>(() => {
     try {
       if (preferences && (preferences as any).sorting) {
         return (preferences as any).sorting as SortingState;
@@ -160,8 +174,11 @@ export default function ConnectDataTable<TData, TValue>({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [dataTable, setDataTable] = useState(data);
+  const [dataLoaded, setDataLoaded] = useState(false);
   useEffect(() => {
     setDataTable(data);
+    // mark that data has been received and applied
+    setDataLoaded(true);
   }, [data]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     preferences || {}
@@ -200,7 +217,10 @@ export default function ConnectDataTable<TData, TValue>({
             );
             setTempColumnOrder(filtered);
           }
-          if (prefs.sorting) setSorting(prefs.sorting as SortingState);
+          if (prefs.sorting) {
+            setTempSorting(prefs.sorting as SortingState);
+            setAppliedSorting(prefs.sorting as SortingState);
+          }
           setPrefsLoaded(true);
         }
       } catch (error) {
@@ -251,7 +271,7 @@ export default function ConnectDataTable<TData, TValue>({
     },
 
     state: {
-      sorting,
+      sorting: appliedSorting,
       columnFilters,
       columnVisibility,
       globalFilter,
@@ -262,7 +282,7 @@ export default function ConnectDataTable<TData, TValue>({
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
-    onSortingChange: setSorting,
+    onSortingChange: setTempSorting,
     onColumnVisibilityChange: setColumnVisibility,
     onGlobalFilterChange: setGlobalFilter,
   });
@@ -270,11 +290,14 @@ export default function ConnectDataTable<TData, TValue>({
   // Persist sorting locally so reloads keep the current sort as a fallback
   useEffect(() => {
     try {
-      localStorage.setItem(`${tableName}-sorting`, JSON.stringify(sorting));
+      localStorage.setItem(
+        `${tableName}-sorting`,
+        JSON.stringify(appliedSorting)
+      );
     } catch (e) {
       // ignore
     }
-  }, [sorting, tableName]);
+  }, [appliedSorting, tableName]);
 
   // waitForApply/applied logic to avoid flash of initial/default sorting
   const waitForApply = true;
@@ -285,7 +308,9 @@ export default function ConnectDataTable<TData, TValue>({
 
   // determine readiness to render (prefs loaded, saved sorting exists, or data array present)
   const readyToRender =
-    prefsLoaded || (sorting && sorting.length > 0) || Array.isArray(dataTable);
+    prefsLoaded ||
+    (appliedSorting && appliedSorting.length > 0) ||
+    Array.isArray(dataTable);
 
   function SortableItem({
     id,
@@ -355,8 +380,8 @@ export default function ConnectDataTable<TData, TValue>({
   //   table.getColumn('name')?.getFilterValue()
   // );
 
-  // If preferences haven't loaded and we don't yet have sorting/data, show a skeleton like PermissionsTable
-  if (!readyToRender || !applied) {
+  // Show skeleton until preferences and data are both loaded (match UserTable behavior)
+  if (!prefsLoaded || !dataLoaded) {
     return (
       <div className="bg-background overflow-hidden rounded-md border p-8">
         <div className="animate-pulse">
@@ -372,7 +397,7 @@ export default function ConnectDataTable<TData, TValue>({
   return (
     <div className="space-y-4">
       {/* Filters */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center  justify-end md:justify-between gap-3">
         <div className="flex items-center gap-3">
           <Input
             placeholder="Search all columns..."
@@ -578,9 +603,17 @@ export default function ConnectDataTable<TData, TValue>({
                         preferences: {
                           visibility: tempColumnVisibility,
                           order: tempColumnOrder,
-                          sorting,
+                          sorting: tempSorting,
                         },
                       };
+
+                      // Apply sorting to the live table only when Save is clicked
+                      setAppliedSorting(tempSorting);
+                      try {
+                        table.setSorting(tempSorting);
+                      } catch (e) {
+                        // ignore if table not ready
+                      }
 
                       const res = await fetch(
                         `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/preferences`,
@@ -811,9 +844,17 @@ export default function ConnectDataTable<TData, TValue>({
                           preferences: {
                             visibility: tempColumnVisibility,
                             order: tempColumnOrder,
-                            sorting,
+                            sorting: tempSorting,
                           },
                         };
+
+                        // Apply sorting to the live table only when Save is clicked
+                        setAppliedSorting(tempSorting);
+                        try {
+                          table.setSorting(tempSorting);
+                        } catch (e) {
+                          // ignore if table not ready
+                        }
 
                         const res = await fetch(
                           `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/preferences`,
@@ -909,8 +950,8 @@ export default function ConnectDataTable<TData, TValue>({
           </div>
         </div>
       </div>
-      {/* Table (visible at all sizes) — scroll horizontally on small viewports */}
-      <div className="bg-background overflow-x-auto rounded-md border">
+      {/* Desktop / large screens: regular table */}
+      <div className="hidden lg:block bg-background overflow-hidden rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -923,12 +964,49 @@ export default function ConnectDataTable<TData, TValue>({
                         header.id === "actions" ? "sticky -right-[1px]" : ""
                       }`}
                     >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
+                      {header.isPlaceholder ? null : (
+                        <div
+                          role={
+                            header.column.getCanSort() ? "button" : undefined
+                          }
+                          tabIndex={header.column.getCanSort() ? 0 : undefined}
+                          onClick={
+                            header.column.getCanSort()
+                              ? header.column.getToggleSortingHandler()
+                              : undefined
+                          }
+                          onKeyDown={
+                            header.column.getCanSort()
+                              ? (e) => {
+                                  if (e.key === "Enter" || e.key === " ") {
+                                    e.preventDefault();
+                                    header.column.getToggleSortingHandler()?.(
+                                      e as any
+                                    );
+                                  }
+                                }
+                              : undefined
+                          }
+                          className={cn(
+                            "flex items-center gap-2 cursor-pointer select-none",
+                            header.column.getCanSort() ? "hover:opacity-80" : ""
+                          )}
+                        >
+                          {flexRender(
                             header.column.columnDef.header,
                             header.getContext()
                           )}
+                          {header.column.getCanSort() ? (
+                            <span className="ml-2 text-sm text-muted-foreground">
+                              {header.column.getIsSorted() === "asc"
+                                ? "▲"
+                                : header.column.getIsSorted() === "desc"
+                                ? "▼"
+                                : ""}
+                            </span>
+                          ) : null}
+                        </div>
+                      )}
                     </TableHead>
                   );
                 })}
@@ -971,6 +1049,84 @@ export default function ConnectDataTable<TData, TValue>({
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Small / medium screens: card list (1 column on sm, 2 columns on md) */}
+      <div className="lg:hidden grid grid-cols-1 md:grid-cols-2 gap-4 ">
+        {table.getRowModel().rows?.length ? (
+          table.getRowModel().rows.map((row) => {
+            // Exclude select/actions and id from card fields
+            const visible = row
+              .getVisibleCells()
+              .filter(
+                (c) =>
+                  c.column.id !== "select" &&
+                  c.column.id !== "actions" &&
+                  c.column.id !== "id"
+              );
+
+            return (
+              <div
+                key={row.id}
+                className="bg-background rounded-lg border p-8 shadow-sm hover:shadow-md transition-shadow relative "
+              >
+                <div className="flex items-start justify-between gap-1 md:gap-4">
+                  <div className="flex-1">
+                    <div className="space-y-2">
+                      {visible.map((cell) => (
+                        <div
+                          key={cell.id}
+                          className="flex items-center justify-between"
+                        >
+                          <div className="text-sm font-semibold text-muted-foreground">
+                            {typeof cell.column.columnDef.header === "string"
+                              ? cell.column.columnDef.header
+                              : cell.column.id}
+                          </div>
+                          <div className="text-sm text-foreground ml-2 text-right line-clamp-1">
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="shrink-0 ml-2">
+                    {/* actions cell (if present) */}
+                    {row
+                      .getVisibleCells()
+                      .find((c) => c.column.id === "actions") ? (
+                      <div className="absolute top-0 right-2">
+                        {flexRender(
+                          row
+                            .getVisibleCells()
+                            .find((c) => c.column.id === "actions")!.column
+                            .columnDef.cell,
+                          row
+                            .getVisibleCells()
+                            .find((c) => c.column.id === "actions")!
+                            .getContext()
+                        )}
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        ) : (
+          <div className="bg-background overflow-hidden rounded-md border p-8 col-span-2">
+            <div className="animate-pulse">
+              <div className="h-6 bg-slate-200 rounded w-1/3 mb-4" />
+              <div className="h-4 bg-slate-100 rounded w-full mb-2" />
+              <div className="h-4 bg-slate-100 rounded w-full mb-2" />
+              <div className="h-4 bg-slate-100 rounded w-3/4" />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Pagination */}

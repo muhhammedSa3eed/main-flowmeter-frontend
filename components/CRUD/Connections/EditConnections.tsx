@@ -52,6 +52,7 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ChevronDownIcon } from "lucide-react";
 // const Polling = [
 //   { id: 1, title: "2000 ms", value: 2000 },
@@ -62,7 +63,7 @@ import { ChevronDownIcon } from "lucide-react";
 interface EditConnectionsProps {
   selectType: SelectType[];
   selectPolling: SelectPolling[];
-  device:DeviceDB
+  device: DeviceDB;
 }
 
 export default function EditConnections({
@@ -72,12 +73,13 @@ export default function EditConnections({
 }: EditConnectionsProps) {
   console.log("Devices :", device);
   const token = Cookies.get("token");
+  const router = useRouter();
   const [isTestConnectionSuccessful, setIsTestConnectionSuccessful] =
     useState(false);
-    const [tableOptions, setTableOptions] = useState<string[]>([]);
-    const [open, setOpen] = useState(false);
+  const [tableOptions, setTableOptions] = useState<string[]>([]);
+  const [open, setOpen] = useState(false);
 
-    const parsedProperty =
+  const parsedProperty =
     typeof device.property === "string"
       ? JSON.parse(device.property)
       : device.property;
@@ -106,10 +108,13 @@ export default function EditConnections({
     },
   });
 
+  // subscribe to form state (isDirty etc.) so the component re-renders
+  const { formState } = form;
+
   const selectedType = form.watch("type");
   useEffect(() => {
-    if (!form.formState.isDirty) return; 
-  
+    if (!form.formState.isDirty) return;
+
     // Clear property fields
     form.setValue("property", {
       dbType: "",
@@ -125,7 +130,7 @@ export default function EditConnections({
       tableName: "",
       dsn: "",
     });
-  
+
     setIsTestConnectionSuccessful(false);
     setTableOptions([]);
   }, [selectedType]);
@@ -156,10 +161,12 @@ export default function EditConnections({
         );
         return;
       }
-console.log("Update device",response)
+      console.log("Update device", response);
       toast.success("Connection has been successfully added.");
       form.reset();
       setIsTestConnectionSuccessful(false);
+      // navigate back to connections list so it shows the updated data
+      router.push("/dashboard/connections");
       // window.location.reload();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Unknown error");
@@ -190,7 +197,7 @@ console.log("Update device",response)
         setIsTestConnectionSuccessful(false);
         return;
       }
-      console.log("Update Connection test",response)
+      console.log("Update Connection test", response);
 
       toast.success("Connection test successful!");
       setIsTestConnectionSuccessful(true);
@@ -202,12 +209,11 @@ console.log("Update device",response)
   }
   return (
     <Form {...form}>
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-      <ResizablePanelGroup direction="horizontal">
-        {/* LEFT PANEL */}
-        <ResizablePanel defaultSize={50} minSize={30}>
-          <div className="p-4 space-y-4">
-           
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <ResizablePanelGroup direction="horizontal">
+          {/* LEFT PANEL */}
+          <ResizablePanel defaultSize={50} minSize={30}>
+            <div className="p-4 space-y-4">
               <>
                 {/* Name + Enabled Switch */}
                 <div className="flex gap-4 my-3">
@@ -287,7 +293,6 @@ console.log("Update device",response)
                       <Select
                         onValueChange={(val) => field.onChange(Number(val))}
                         value={field.value?.toString()}
-                      
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Select polling" />
@@ -333,105 +338,103 @@ console.log("Update device",response)
                   )}
                 />
               </>
-          
-       
 
-            <div className="flex justify-between">
-              <Link href="/dashboard/connections">
-                <Button className="ml-auto" variant={'default'}>
-              
-                  Back 
+              <div className="flex justify-between">
+                <Link href="/dashboard/connections">
+                  <Button className="ml-auto" variant={"default"}>
+                    Back
+                  </Button>
+                </Link>
+                <Button
+                  type="submit"
+                  variant="Accepted"
+                  // enable Save when any field has been changed (isDirty)
+                  disabled={!formState.isDirty}
+                >
+                  Save
                 </Button>
-              </Link>
-              <Button
-                type="submit"
-                variant="Accepted"
-                disabled={!isTestConnectionSuccessful}
-              >
-                Save
-              </Button>
-            </div>
-          </div>
-        </ResizablePanel>
-
-        <ResizableHandle withHandle className="bg-green-500" />
-
-        {/* RIGHT PANEL */}
-        <ResizablePanel defaultSize={50} minSize={30}>
-          <div className="p-4 border-l border-muted relative">
-            {selectedType === "WebAPI" && <WebAPIForm form={form} />}
-            {selectedType === "database" && <DbForm form={form} />}
-            {selectedType === "ODBC" && <ODBCForm form={form} />}
-
-            {/* Table Options after test */}
-            {tableOptions.length > 0 && (
-              <div className="mt-4">
-                <p className="text-green-600 text-sm mb-4">
-                  Connection success ✅
-                </p>
-                <FormField
-                  control={form.control}
-                  name="property.tableName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Table</FormLabel>
-                      <Popover open={open} onOpenChange={setOpen}>
-                        <PopoverTrigger asChild>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            role="combobox"
-                            className="w-full justify-between"
-                          >
-                            {field.value || "Select table"}
-                            <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent
-                          className="w-full p-0 z-[999]"
-                          align="start"
-                        >
-                          <Command>
-                            <CommandInput placeholder="Search tables..." />
-                            <CommandList>
-                              <CommandEmpty>No table found.</CommandEmpty>
-                              <CommandGroup>
-                                {tableOptions.map((table) => (
-                                  <CommandItem
-                                    key={table}
-                                    value={table}
-                                    onSelect={() => {
-                                      field.onChange(table);
-                                      setOpen(false);
-                                    }}
-                                  >
-                                    {table}
-                                  </CommandItem>
-                                ))}
-                              </CommandGroup>
-                            </CommandList>
-                          </Command>
-                        </PopoverContent>
-                      </Popover>
-                    </FormItem>
-                  )}
-                />
               </div>
-            )}
-                 {!isTestConnectionSuccessful && (
-              <Button
-                type="button"
-                variant="edit"
-                onClick={form.handleSubmit(testConnection)}
-                className="w-full mt-5"
-              >
-                Test Connections
-              </Button>
-            )}
-          </div>
-        </ResizablePanel>
-      </ResizablePanelGroup>
-    </form>
-  </Form>
+            </div>
+          </ResizablePanel>
+
+          <ResizableHandle withHandle className="bg-green-500" />
+
+          {/* RIGHT PANEL */}
+          <ResizablePanel defaultSize={50} minSize={30}>
+            <div className="p-4 border-l border-muted relative">
+              {selectedType === "WebAPI" && <WebAPIForm form={form} />}
+              {selectedType === "database" && <DbForm form={form} />}
+              {selectedType === "ODBC" && <ODBCForm form={form} />}
+
+              {/* Table Options after test */}
+              {tableOptions.length > 0 && (
+                <div className="mt-4">
+                  <p className="text-green-600 text-sm mb-4">
+                    Connection success ✅
+                  </p>
+                  <FormField
+                    control={form.control}
+                    name="property.tableName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Table</FormLabel>
+                        <Popover open={open} onOpenChange={setOpen}>
+                          <PopoverTrigger asChild>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              role="combobox"
+                              className="w-full justify-between"
+                            >
+                              {field.value || "Select table"}
+                              <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent
+                            className="w-full p-0 z-[999]"
+                            align="start"
+                          >
+                            <Command>
+                              <CommandInput placeholder="Search tables..." />
+                              <CommandList>
+                                <CommandEmpty>No table found.</CommandEmpty>
+                                <CommandGroup>
+                                  {tableOptions.map((table) => (
+                                    <CommandItem
+                                      key={table}
+                                      value={table}
+                                      onSelect={() => {
+                                        field.onChange(table);
+                                        setOpen(false);
+                                      }}
+                                    >
+                                      {table}
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              )}
+              {!isTestConnectionSuccessful && (
+                <Button
+                  type="button"
+                  variant="edit"
+                  onClick={form.handleSubmit(testConnection)}
+                  className="w-full mt-5"
+                >
+                  Test Connections
+                </Button>
+              )}
+            </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      </form>
+    </Form>
   );
 }

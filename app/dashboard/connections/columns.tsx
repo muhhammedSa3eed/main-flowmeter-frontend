@@ -1,17 +1,17 @@
-'use client';
-import { Checkbox } from '@/components/ui/checkbox';
-import { ColumnDef } from '@tanstack/react-table';
-import { DeviceDB, } from '@/types';
-import { Badge } from '@/components/ui/badge';
-import { RowActions } from './row-actions';
+"use client";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ColumnDef } from "@tanstack/react-table";
+import { DeviceDB } from "@/types";
+import { Badge } from "@/components/ui/badge";
+import { RowActions } from "./row-actions";
 export const columns: ColumnDef<DeviceDB>[] = [
   {
-    id: 'select',
+    id: "select",
     header: ({ table }) => (
       <Checkbox
         checked={
           table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && 'indeterminate')
+          (table.getIsSomePageRowsSelected() && "indeterminate")
         }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
@@ -29,12 +29,12 @@ export const columns: ColumnDef<DeviceDB>[] = [
     enableHiding: false,
   },
   {
-    header: 'Name',
-    accessorKey: 'name',
-
+    header: "Name",
+    accessorKey: "name",
     cell: ({ row }) => (
-      <div className="font-medium">{row.getValue('name')}</div>
+      <div className="font-medium">{row.getValue("name")}</div>
     ),
+    enableHiding: false,
     // size: 180,
     // filterFn: (row, _columnId, filterValue) => {
     //   const searchableRowContent =
@@ -49,44 +49,44 @@ export const columns: ColumnDef<DeviceDB>[] = [
     // enableHiding: false,
   },
   {
-    header: 'Polling',
-    accessorKey: 'polling',
-    cell: ({ row }) => <div>{row.getValue('polling')}</div>,
+    header: "Polling",
+    accessorKey: "polling",
+    cell: ({ row }) => <div>{row.getValue("polling")}</div>,
     size: 220,
   },
   {
-    header: ' Type',
-    accessorKey: 'type',
-    cell: ({ row }) => <div>{row.getValue('type')}</div>,
+    header: " Type",
+    accessorKey: "type",
+    cell: ({ row }) => <div>{row.getValue("type")}</div>,
     size: 120,
   },
   {
-    header: 'Description',
-    accessorKey: 'description',
-    cell: ({ row }) => <div>{row.getValue('description')}</div>,
+    header: "Description",
+    accessorKey: "description",
+    cell: ({ row }) => <div>{row.getValue("description")}</div>,
     size: 200,
   },
   {
-    header: 'Enabled',
-    accessorKey: 'enabled',
+    header: "Enabled",
+    accessorKey: "enabled",
     cell: ({ row }) => {
-      const enabled = row.getValue('enabled');
+      const enabled = row.getValue("enabled");
       return (
         <Badge
           className={
             enabled
-              ? 'bg-green-500 text-white hover:bg-green-500'
-              : 'bg-gray-500 text-white hover:bg-destructive'
+              ? "bg-green-500 text-white hover:bg-green-500"
+              : "bg-gray-500 text-white hover:bg-destructive"
           }
         >
-          {enabled ? 'Enabled' : 'Disabled'}
+          {enabled ? "Enabled" : "Disabled"}
         </Badge>
       );
     },
     size: 200,
   },
   {
-    id: 'actions',
+    id: "actions",
 
     header: () => <span className="sr-only">Actions</span>,
     cell: ({ row }) => <RowActions row={row} />,

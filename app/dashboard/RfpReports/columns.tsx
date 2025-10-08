@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import { Checkbox } from '@/components/ui/checkbox';
-import { ColumnDef } from '@tanstack/react-table';
-import { format } from 'date-fns';
-import RowActions from './row-actions';
-import { Report } from '@/types';
+import { Checkbox } from "@/components/ui/checkbox";
+import { ColumnDef } from "@tanstack/react-table";
+import { format } from "date-fns";
+import RowActions from "./row-actions";
+import { Report } from "@/types";
 
 export const columns: ColumnDef<Report>[] = [
   {
-    id: 'select',
+    id: "select",
     header: ({ table }) => (
       <Checkbox
         checked={
           table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && 'indeterminate')
+          (table.getIsSomePageRowsSelected() && "indeterminate")
         }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
@@ -31,43 +31,44 @@ export const columns: ColumnDef<Report>[] = [
     enableHiding: false,
   },
   {
-    header: 'ID',
-    accessorKey: 'id',
-    cell: ({ row }) => <div className="font-medium">{row.getValue('id')}</div>,
+    header: "ID",
+    accessorKey: "id",
+    cell: ({ row }) => <div className="font-medium">{row.getValue("id")}</div>,
   },
   {
-    header: 'Title',
-    accessorKey: 'title',
-    cell: ({ row }) => <div>{row.getValue('title')}</div>,
+    header: "Title",
+    accessorKey: "title",
+    cell: ({ row }) => <div>{row.getValue("title")}</div>,
+    enableHiding: false,
   },
   {
-    header: 'Coverage Probability',
-    accessorKey: 'coverageProbability',
+    header: "Coverage Probability",
+    accessorKey: "coverageProbability",
     cell: ({ row }) => {
-      const value = row.getValue('coverageProbability') as number | undefined;
-      return <div>{typeof value === 'number' ? value.toFixed(2) : '-'}</div>;
+      const value = row.getValue("coverageProbability") as number | undefined;
+      return <div>{typeof value === "number" ? value.toFixed(2) : "-"}</div>;
     },
   },
   {
-    header: 'Created At',
-    accessorKey: 'createdAt',
+    header: "Created At",
+    accessorKey: "createdAt",
     cell: ({ row }) => {
-      const date = row.getValue('createdAt') as string;
-      return <div>{date ? format(new Date(date), 'dd/MM/yyyy') : ''}</div>;
+      const date = row.getValue("createdAt") as string;
+      return <div>{date ? format(new Date(date), "dd/MM/yyyy") : ""}</div>;
     },
   },
   {
-    header: 'Updated At',
-    accessorKey: 'updatedAt',
+    header: "Updated At",
+    accessorKey: "updatedAt",
     cell: ({ row }) => {
-      const date = row.getValue('updatedAt') as string;
-      return <div>{date ? format(new Date(date), 'dd/MM/yyyy') : ''}</div>;
+      const date = row.getValue("updatedAt") as string;
+      return <div>{date ? format(new Date(date), "dd/MM/yyyy") : ""}</div>;
     },
   },
   {
-    header: 'RFP ID',
-    accessorKey: 'rfpId',
-    cell: ({ row }) => <div>{row.getValue('rfpId')}</div>,
+    header: "RFP ID",
+    accessorKey: "rfpId",
+    cell: ({ row }) => <div>{row.getValue("rfpId")}</div>,
   },
   // {
   //   header: 'Created By',
@@ -80,7 +81,7 @@ export const columns: ColumnDef<Report>[] = [
   //   cell: ({ row }) => <div>{row.getValue('updatedBy')}</div>,
   // },
   {
-    id: 'actions',
+    id: "actions",
     cell: ({ row }) => <RowActions row={row} />,
   },
 ];

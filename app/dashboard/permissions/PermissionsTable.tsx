@@ -33,6 +33,7 @@ import {
   ChevronLastIcon,
   GripVertical,
   X,
+  CirclePlus,
 } from "lucide-react";
 
 import { RankingInfo, rankItem } from "@tanstack/match-sorter-utils";
@@ -747,7 +748,12 @@ function PermissionsTableInner<TData, TValue>({
             <SheetTrigger asChild>
               <Button variant={"custom"}>
                 {" "}
-                <Plus style={{ height: 20, width: 20 }} /> Add New Group
+                <CirclePlus
+                  className="-ms-1 opacity-60"
+                  size={16}
+                  aria-hidden="true"
+                />{" "}
+                Add New Group
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="2xl:max-w-2xl">
